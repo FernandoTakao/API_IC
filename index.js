@@ -9,7 +9,7 @@ const courses = [
   { id: 3, name: 'course3' },
 ];
 
-// 🔹 Função de validação reutilizável
+
 function validateCourse(course) {
   if (!course.name) {
     return 'Name is required';
