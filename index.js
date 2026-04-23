@@ -23,7 +23,7 @@ function validateCourse(course) {
     return 'Name must be at least 3 characters';
   }
 
-  return null; // sem erro
+  return null; 
 }
 
 app.get('/', (req, res) => {
