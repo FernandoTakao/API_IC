@@ -62,6 +62,27 @@ app.get('/users/:id', async (req, res) => {
     }
 });
 
+app.put('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(400).json({ error: 'ID inválido ou dados incorretos' });
+    }
+});
+
 app.delete('/users/:id', async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
