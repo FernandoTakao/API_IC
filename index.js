@@ -27,7 +27,7 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema);
 
 app.get('/', (req, res) => {
-    res.send('Servidor funcionando 🚀');
+    res.send('Servidor funcionando ');
 });
 
 app.post('/users', async (req, res) => {
