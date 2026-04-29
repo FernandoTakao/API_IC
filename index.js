@@ -1,85 +1,82 @@
 const express = require('express');
+const mongoose = require('mongoose');
+
 const app = express();
 
 app.use(express.json());
 
-const courses = [
-  { id: 1, name: 'course1' },
-  { id: 2, name: 'course2' },
-  { id: 3, name: 'course3' },
-];
+mongoose.connect('mongodb://127.0.0.1:27017/meu-banco', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB conectado'))
+.catch(err => console.log('Erro ao conectar:', err));
 
-// 🔹 Função de validação reutilizável
-function validateCourse(course) {
-  if (!course.name) {
-    return 'Name is required';
-  }
+const UserSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    }
+});
 
-  if (typeof course.name !== 'string') {
-    return 'Name must be a string';
-  }
-
-  if (course.name.length < 3) {
-    return 'Name must be at least 3 characters';
-  }
-
-  return null; // sem erro
-}
+const User = mongoose.model('User', UserSchema);
 
 app.get('/', (req, res) => {
-  res.send('Hello World');
+    res.send('Servidor funcionando 🚀');
 });
 
-app.get('/api/courses', (req, res) => {
-  res.send(courses);
+app.post('/users', async (req, res) => {
+    try {
+        const user = await User.create(req.body);
+        res.status(201).json(user);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 });
 
-app.get('/api/courses/:id', (req, res) => {
-  const course = courses.find(c => c.id === parseInt(req.params.id));
-  if (!course) return res.status(404).send('Course not found');
-
-  res.send(course);
+app.get('/users', async (req, res) => {
+    try {
+        const users = await User.find();
+        res.status(200).json(users);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-app.post('/api/courses', (req, res) => {
-  const error = validateCourse(req.body);
+app.get('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
 
-  if (error) {
-    return res.status(400).send(error);
-  }
-
-  const course = {
-    id: courses.length + 1,
-    name: req.body.name
-  };
-
-  courses.push(course);
-  res.send(course);
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(400).json({ error: 'ID inválido' });
+    }
 });
 
-app.put('/api/courses/:id', (req, res) => {
-  const course = courses.find(c => c.id === parseInt(req.params.id));
-  if (!course) return res.status(404).send('Course not found');
+app.delete('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
 
-  const error = validateCourse(req.body);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
 
-  if (error) {
-    return res.status(400).send(error);
-  }
-  
-  course.name = req.body.name;
-  res.send(course);
+        res.status(200).json({ message: 'Usuário deletado com sucesso' });
+    } catch (err) {
+        res.status(400).json({ error: 'ID inválido' });
+    }
 });
 
-app.delete('/api/courses/:id', (req, res) => {
-    const course = courses.find(c => c.id === parseInt(req.params.id));
-    if (!course) return res.status(404).send('Course not found');
-
-    const index = courses.indexOf(course);
-    courses.splice(index, 1);
-
-    res.send(course);
+const port = 3000;
+app.listen(port, () => {
+    console.log(`App running on port ${port}`);
 });
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Listening on port ${port}...`));
