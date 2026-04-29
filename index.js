@@ -5,10 +5,7 @@ const app = express();
 
 app.use(express.json());
 
-mongoose.connect('mongodb://127.0.0.1:27017/meu-banco', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+mongoose.connect('mongodb://127.0.0.1:27017/meu-banco')
 .then(() => console.log('MongoDB conectado'))
 .catch(err => console.log('Erro ao conectar:', err));
 
