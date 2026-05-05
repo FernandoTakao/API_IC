@@ -1,73 +1,43 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const User = require('../models/Users');
 
-const app = express();
-
-app.use(express.json());
-
-mongoose.connect('mongodb://127.0.0.1:27017/meu-banco')
-.then(() => console.log('MongoDB conectado'))
-.catch(err => console.log('Erro ao conectar:', err));
-
-const UserSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    }
-});
-
-const User = mongoose.model('User', UserSchema);
-
-app.get('/', (req, res) => {
-    res.send('Servidor funcionando ');
-});
-
-app.post('/users', async (req, res) => {
+exports.createUser = async (req, res) => {
     try {
         const user = await User.create(req.body);
         res.status(201).json(user);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
-});
+};
 
-app.get('/users', async (req, res) => {
+exports.getUsers = async (req, res) => {
     try {
         const users = await User.find();
         res.status(200).json(users);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-});
+};
 
-app.get('/users/:id', async (req, res) => {
+exports.getUserById = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
-        
+
         if (!user) {
             return res.status(404).json({ message: 'Usuário não encontrado' });
         }
 
         res.status(200).json(user);
-    } catch (err) {
+    } catch {
         res.status(400).json({ error: 'ID inválido' });
     }
-});
+};
 
-app.put('/users/:id', async (req, res) => {
+exports.updateUser = async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(
             req.params.id,
             req.body,
-            {
-                new: true,
-                runValidators: true
-            }
+            { new: true, runValidators: true }
         );
 
         if (!user) {
@@ -75,12 +45,12 @@ app.put('/users/:id', async (req, res) => {
         }
 
         res.status(200).json(user);
-    } catch (err) {
+    } catch {
         res.status(400).json({ error: 'ID inválido ou dados incorretos' });
     }
-});
+};
 
-app.delete('/users/:id', async (req, res) => {
+exports.deleteUser = async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
 
@@ -89,12 +59,7 @@ app.delete('/users/:id', async (req, res) => {
         }
 
         res.status(200).json({ message: 'Usuário deletado com sucesso' });
-    } catch (err) {
+    } catch {
         res.status(400).json({ error: 'ID inválido' });
     }
-});
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`App running on port ${port}`);
-});
+};
