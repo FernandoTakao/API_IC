@@ -28,9 +28,20 @@ async function importarCSV() {
       .on("data", (data) => {
 
         for (let chave in data) {
+
+          if (chave.trim() === "") {
+            delete data[chave];
+            continue;
+          }
+
           const valor = data[chave];
 
-          if (!isNaN(valor) && valor.trim() !== "") {
+          if (valor.trim() === "") {
+            delete data[chave];
+            continue;
+          }
+
+          if (!isNaN(valor)) {
             data[chave] = Number(valor);
           }
         }
