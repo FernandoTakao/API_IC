@@ -89,6 +89,8 @@ async function createCharts(req, res) {
       });
     }
 
+    console.log(charts);
+    console.log(filters)
     const result = await generateCharts(charts, data);
 
     return res.status(200).json(result);

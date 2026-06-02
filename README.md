@@ -66,9 +66,18 @@ Exemplo de body:
 
 ```json
 {
-  "_id": [1, 2],
-  "dataset": "deepweeds",
-  "device": "Slow-end"
+  "charts": [
+    "chart1",
+    "chart2",
+    "chart3",
+    "chart4"
+  ],
+  "filters": {
+    "_id": [1,2],
+    "dataset": "deepweeds",
+    "device": "Slow-end"
+    
+  }
 }
 ```
 

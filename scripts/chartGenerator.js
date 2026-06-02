@@ -1,6 +1,16 @@
 async function generateCharts(charts, data) {
+  console.log(
+    JSON.stringify(
+      {
+        charts,
+        data: data.slice(0, 2),
+      },
+      null,
+      2,
+    ),
+  );
   const response = await fetch(
-    "https://denial-leverage-facedown.ngrok-free.dev/analytics",
+    "https://analytics-api-zlo2.onrender.com/analytics",
     {
       method: "POST",
       headers: {
