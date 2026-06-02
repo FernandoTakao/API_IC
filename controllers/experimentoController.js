@@ -15,21 +15,6 @@ exports.createExperimento = async (req, res) => {
   }
 };
 
-exports.getExperimentos = async (req, res) => {
-  try {
-    const db = getDB();
-    const experimentos = db.collection("experimentos");
-
-    const result = await experimentos.find().toArray();
-
-    res.status(200).json(result);
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
-  }
-};
-
 exports.getExperimentoById = async (req, res) => {
   try {
     const db = getDB();

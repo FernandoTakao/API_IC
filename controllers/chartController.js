@@ -82,17 +82,6 @@ async function createCharts(req, res) {
       exp.execucoes.filter((exec) => matchesFilters(exec, executionFilters)),
     );
 
-    const teste = await collection
-      .find({
-        _id: {
-          $in: [1, 2],
-        },
-      })
-      .toArray();
-
-    console.log("Encontrados:", teste.length);
-    console.log(teste.map((t) => t._id));
-
     if (data.length === 0) {
       return res.status(404).json({
         success: false,
