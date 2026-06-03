@@ -4,8 +4,11 @@ const userRoutes = require('./routes/userRoutes');
 const experimentosRoutes = require('./routes/experimentosRoutes');
 const chartRoutes = require("./routes/chartRoutes");
 const app = express();
+const cors = require("cors");
+
 
 app.use(express.json());
+app.use(cors());
 
 app.get('/', (req, res) => {
     res.send('Servidor funcionando');
