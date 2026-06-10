@@ -1,15 +1,43 @@
 const { getDB } = require("../config/db");
+const { ObjectId } = require("mongodb");
 
 exports.createExperimento = async (req, res) => {
   try {
     const db = getDB();
-    const experimentos = db.collection("experimentos");
 
-    const result = await experimentos.insertOne(req.body);
+    const experimento = {
+      ...req.body,
+      userId: new ObjectId(req.userId),
+      createdAt: new Date(),
+    };
 
-    res.status(201).json(result);
+    const result = await db.collection("experimentos").insertOne(experimento);
+
+    res.status(201).json({
+      message: "Experimento criado com sucesso",
+      insertedId: result.insertedId,
+    });
   } catch (err) {
     res.status(400).json({
+      error: err.message,
+    });
+  }
+};
+
+exports.getMyExperimentos = async (req, res) => {
+  try {
+    const db = getDB();
+
+    const experimentos = await db
+      .collection("experimentos")
+      .find({
+        userId: new ObjectId(req.userId),
+      })
+      .toArray();
+
+    res.status(200).json(experimentos);
+  } catch (err) {
+    res.status(500).json({
       error: err.message,
     });
   }
@@ -31,7 +59,6 @@ exports.getExperimentoById = async (req, res) => {
     }
 
     res.status(200).json(experimento);
-
   } catch (err) {
     res.status(500).json({
       error: err.message,
@@ -53,7 +80,7 @@ exports.updateExperimento = async (req, res) => {
       },
       {
         returnDocument: "after",
-      }
+      },
     );
 
     if (!result.value) {
@@ -63,7 +90,6 @@ exports.updateExperimento = async (req, res) => {
     }
 
     res.status(200).json(result.value);
-
   } catch (err) {
     res.status(400).json({
       error: err.message,
@@ -89,7 +115,6 @@ exports.deleteExperimento = async (req, res) => {
     res.status(200).json({
       message: "Experimento deletado com sucesso",
     });
-
   } catch (err) {
     res.status(500).json({
       error: err.message,
@@ -110,7 +135,7 @@ exports.getExperimentoColunas = async (req, res) => {
         projection: {
           execucoes: { $slice: 1 },
         },
-      }
+      },
     );
 
     if (!experimento) {
@@ -119,12 +144,9 @@ exports.getExperimentoColunas = async (req, res) => {
       });
     }
 
-    const colunas = Object.keys(
-      experimento.execucoes[0]
-    );
+    const colunas = Object.keys(experimento.execucoes[0]);
 
     res.status(200).json(colunas);
-
   } catch (err) {
     res.status(500).json({
       error: err.message,

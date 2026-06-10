@@ -1,31 +1,35 @@
-const { ObjectId } = require("mongodb");
-const { getDB } = require("../config/db");
+const User = require("../models/User");
+const bcrypt = require("bcrypt");
 
 exports.createUser = async (req, res) => {
   try {
-    const db = getDB();
-    const users = db.collection("users");
+    const senhaHash = await bcrypt.hash(
+      req.body.senha,
+      10
+    );
 
-    const result = await users.insertOne(req.body);
+    const user = await User.create({
+      ...req.body,
+      senha: senhaHash
+    });
 
-    res.status(201).json(result);
+    res.status(201).json({
+      message: "Usuário criado com sucesso",
+      user
+    });
 
   } catch (err) {
     res.status(400).json({
-      error: err.message,
+      error: err.message
     });
   }
 };
 
 exports.getUsers = async (req, res) => {
   try {
-    const db = getDB();
-    const users = db.collection("users");
+    const users = await User.find();
 
-    const result = await users.find().toArray();
-
-    res.status(200).json(result);
-
+    res.status(200).json(users);
   } catch (err) {
     res.status(500).json({
       error: err.message,
@@ -35,18 +39,7 @@ exports.getUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
-    if (!ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({
-        error: "ID inválido",
-      });
-    }
-
-    const db = getDB();
-    const users = db.collection("users");
-
-    const user = await users.findOne({
-      _id: new ObjectId(req.params.id),
-    });
+    const user = await User.findById(req.params.id);
 
     if (!user) {
       return res.status(404).json({
@@ -55,45 +48,34 @@ exports.getUserById = async (req, res) => {
     }
 
     res.status(200).json(user);
-
   } catch (err) {
-    res.status(500).json({
-      error: err.message,
+    res.status(400).json({
+      error: "ID inválido",
     });
   }
 };
 
 exports.updateUser = async (req, res) => {
   try {
-    if (!ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({
-        error: "ID inválido",
-      });
-    }
-
-    const db = getDB();
-    const users = db.collection("users");
-
-    const result = await users.findOneAndUpdate(
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
       {
-        _id: new ObjectId(req.params.id),
-      },
-      {
-        $set: req.body,
-      },
-      {
-        returnDocument: "after",
+        new: true,
+        runValidators: true,
       }
     );
 
-    if (!result.value) {
+    if (!user) {
       return res.status(404).json({
         message: "Usuário não encontrado",
       });
     }
 
-    res.status(200).json(result.value);
-
+    res.status(200).json({
+      message: "Usuário atualizado com sucesso",
+      user,
+    });
   } catch (err) {
     res.status(400).json({
       error: err.message,
@@ -103,20 +85,9 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    if (!ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({
-        error: "ID inválido",
-      });
-    }
+    const user = await User.findByIdAndDelete(req.params.id);
 
-    const db = getDB();
-    const users = db.collection("users");
-
-    const result = await users.findOneAndDelete({
-      _id: new ObjectId(req.params.id),
-    });
-
-    if (!result.value) {
+    if (!user) {
       return res.status(404).json({
         message: "Usuário não encontrado",
       });
@@ -125,10 +96,9 @@ exports.deleteUser = async (req, res) => {
     res.status(200).json({
       message: "Usuário deletado com sucesso",
     });
-
   } catch (err) {
-    res.status(500).json({
-      error: err.message,
+    res.status(400).json({
+      error: "ID inválido",
     });
   }
 };
