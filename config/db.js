@@ -13,10 +13,6 @@ async function connectDB() {
 
     db = client.db("testeCSV");
 
-    await db
-      .collection("experimentos")
-      .createIndex({ key: 1 }, { unique: true });
-
     console.log("MongoDB Driver conectado");
 
     await mongoose.connect(uri, {
