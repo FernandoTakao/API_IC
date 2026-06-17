@@ -100,18 +100,15 @@ async function createCharts(req, res) {
 
     const result = await generateCharts(charts, data);
 
-    // Gerar CSV
     const parser = new Parser();
     const csv = parser.parse(data);
 
-    // Garantir que a pasta reports exista
     const reportsDir = path.join(__dirname, "../reports");
 
     if (!fs.existsSync(reportsDir)) {
       fs.mkdirSync(reportsDir, { recursive: true });
     }
 
-    // Criar arquivo CSV
     const fileName = `report-${Date.now()}.csv`;
     const filePath = path.join(reportsDir, fileName);
 
@@ -121,7 +118,7 @@ async function createCharts(req, res) {
       ...result,
       csvUrl: `${req.protocol}://${req.get(
         "host"
-      )}/charts/download/${fileName}`,
+      )}/api/charts/download/${fileName}`,
     });
   } catch (error) {
     console.error(error);

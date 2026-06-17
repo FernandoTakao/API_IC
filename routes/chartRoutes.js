@@ -6,6 +6,6 @@ const { createCharts, downloadCsv } = require("../controllers/chartController");
 
 router.post("/", createCharts);
 
-router.get("/download/:file", auth, downloadCsv);
+router.get("/download/:file", downloadCsv);
 
 module.exports = router;
