@@ -2,10 +2,10 @@ const express = require("express");
 const auth = require("../middlewares/auth");
 const router = express.Router();
 
-const { createCharts, downloadCsv } = require("../controllers/chartController");
+const chartController = require("../controllers/chartController");
 
-router.post("/", createCharts);
+router.post("/", chartController.createCharts);
 
-router.get("/download/:file", downloadCsv);
+router.get("/download/:file", auth, chartController.downloadCsv);
 
 module.exports = router;
