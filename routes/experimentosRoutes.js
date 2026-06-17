@@ -7,9 +7,9 @@ const experimentoController = require("../controllers/experimentoController");
 router.post("/", auth, experimentoController.createExperimento);
 router.post("/chaves",experimentoController.generateExperimentKey);
 router.get("/meus-experimentos", auth, experimentoController.getMyExperimentos);
-router.get("/:id/colunas", experimentoController.getExperimentoColunas);
-router.get("/:id", experimentoController.getExperimentoById);
-router.patch("/:id", experimentoController.updateExperimento);
-router.delete("/:id", experimentoController.deleteExperimento);
+router.get("/:key/colunas", auth, experimentoController.getExperimentoColunas);
+router.get("/:key", auth, experimentoController.getExperimentoByKey);
+router.patch("/:key", auth, experimentoController.updateExperimento);
+router.delete("/:key", auth, experimentoController.deleteExperimento);
 
 module.exports = router;

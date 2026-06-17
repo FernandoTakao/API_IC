@@ -88,7 +88,7 @@ exports.getMyExperimentos = async (req, res) => {
   }
 };
 
-exports.getExperimentoById = async (req, res) => {
+exports.getExperimentoByKey= async (req, res) => {
   try {
     const db = getDB();
 
@@ -114,6 +114,8 @@ exports.getExperimentoById = async (req, res) => {
 exports.updateExperimento = async (req, res) => {
   try {
     const db = getDB();
+    
+    const { key, userId, _id, ...updateData } = req.body;
 
     const result = await db.collection("experimentos").findOneAndUpdate(
       {
@@ -121,20 +123,20 @@ exports.updateExperimento = async (req, res) => {
         userId: new ObjectId(req.userId),
       },
       {
-        $set: req.body,
+        $set: updateData,
       },
       {
         returnDocument: "after",
       }
     );
 
-    if (!result) {
+    if (!result || !result.value) {
       return res.status(404).json({
         message: "Experimento não encontrado",
       });
     }
 
-    res.status(200).json(result);
+    res.status(200).json(result.value);
   } catch (err) {
     res.status(400).json({
       error: err.message,

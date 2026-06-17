@@ -1,18 +1,19 @@
-# API ICD
+edite este documento read me # API ICD
 
-Backend para armazenamento de dados dos experimentos realizados pelo app ou script no mongoDB
+Backend para armazenamento e gerenciamento de experimentos executados por aplicações e scripts, utilizando Node.js, Express e MongoDB.
 
 ## Tecnologias
 
 - Node.js
 - Express
 - MongoDB
+- JWT (JSON Web Token)
 - Ngrok
 
 ## Pré-requisitos
 
-- Node.js instalado
-- MongoDB instalado
+- Node.js
+- MongoDB
 - NPM
 
 ## Instalação
@@ -23,10 +24,10 @@ Clone o repositório:
 git clone https://github.com/FernandoTakao/API_IC.git
 ```
 
-Entre na pasta:
+Entre na pasta do projeto:
 
 ```bash
-cd seu-projeto
+cd API_IC
 ```
 
 Instale as dependências:
@@ -37,11 +38,12 @@ npm install
 
 ## Configuração
 
-Crie um arquivo `.env`:
+Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 PORT=3000
 MONGO_URI=mongodb://localhost:27017/testeCSV
+JWT_SECRET=seu_segredo_jwt
 ```
 
 ## Executando o projeto
@@ -56,27 +58,188 @@ ou
 node server.js
 ```
 
-## Rotas da API
+---
 
-### Criar gráfico
+## Autenticação
 
-**POST** `/charts`
+A API utiliza JWT para proteger determinadas rotas.
+
+Após realizar login, envie o token no header da requisição:
+
+```http
+Authorization: Bearer <token>
+```
+
+---
+
+## Endpoints
+
+### Verificar servidor
+
+**GET** `/`
+
+Resposta:
+
+```text
+Servidor funcionando
+```
+
+---
+
+## Usuários
+
+### Criar usuário
+
+**POST** `/api/users`
 
 Exemplo de body:
 
 ```json
 {
-  "charts": [
-    "chart1",
-    "chart2",
-    "chart3",
-    "chart4"
-  ],
+  "nomeCompleto": "Fernando Takao Watanabe",
+  "emailInstitucional": "fernando.watanabe@alunos.utfpr.edu.br",
+  "instituicao": "Universidade Tecnologica Federal do Parana,
+  "laboratorio": "LABIC",
+  "senha": "MinhaSenha123"
+}
+```
+
+### Atualizar usuário
+
+**PATCH** `/api/users/:id`
+
+### Remover usuário
+
+**DELETE** `/api/users/:id`
+
+---
+
+## Autenticação
+
+### Login
+
+**POST** `/api/auth/login`
+
+Exemplo de body:
+
+```json
+{
+  "emailInstitucional": "fernando@universidade.edu",
+  "password": "123456"
+}
+```
+
+Resposta:
+
+```json
+{
+  "message": "Login realizado com sucesso",
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": [...]
+}
+```
+
+---
+
+## Experimentos
+
+### Gerar chave de experimento
+
+**POST** `/api/experimentos/chaves`
+
+Resposta:
+
+```json
+{
+  "key": "A7K9P2"
+}
+```
+
+### Criar experimento
+
+**POST** `/api/experimentos`
+
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
+
+Exemplo de body:
+
+```json
+{
+  "nome": "DeepWeeds - EfficientNetV2B0",
+  "descricao": "Teste de inferência",
+  "key": "A7K9P2",
+  "execucoes": [
+    {
+      "modelo": "efficientnetv2b0",
+      "dataset": "deepweeds",
+      "fold": 1,
+      "device": "Slow-end",
+      "rep": 0,
+      "inference_time": 361.08377,
+      "pss_baseline": 71.3623046875,
+      "pss_after_load": 128.546875,
+      "pss_warmup": 137.1376953125,
+      "pss_footprint": 137.22754,
+      "pss_peak": 137.22754,
+      "brightness_pct": 0,
+      "battery_pct": 99,
+      "is_charging": "YES",
+      "airplane_mode": "ON"
+    }
+  ]
+}
+```
+
+### Listar meus experimentos
+
+**GET** `/api/experimentos/meus-experimentos`
+
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
+
+### Buscar experimento por Key
+
+**GET** `/api/experimentos/:key`
+
+### Obter colunas disponíveis de um experimento
+
+**GET** `/api/experimentos/:key/colunas`
+
+### Atualizar experimento
+
+**PATCH** `/api/experimentos/:key`
+
+### Remover experimento
+
+**DELETE** `/api/experimentos/:key`
+
+---
+
+## Relatórios
+
+### Gerar relatório CSV
+
+**POST** `/api/charts`
+
+Exemplo de body:
+
+```json
+{
+  "charts": ["chart1", "chart2", "chart3", "chart4"],
   "filters": {
-    "_id": [1,2],
     "dataset": "deepweeds",
     "device": "Slow-end"
-    
   }
 }
 ```
@@ -89,29 +252,82 @@ Resposta:
 }
 ```
 
+### Download de relatório CSV
+
+**GET** `/api/charts/download/:file`
+
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
+
+---
+
+## Rotas Protegidas
+
+As seguintes rotas exigem autenticação JWT:
+
+* POST `/api/experimentos`
+* GET `/api/experimentos/:key`
+* GET `/api/experimentos/:key/colunas`
+* PATCH `/api/experimentos/:key`
+* DELETE `/api/experimentos/:key`
+* GET `/api/experimentos/meus-experimentos`
+* GET `/api/charts/download/:file`
+
+Header obrigatório:
+
+```http
+Authorization: Bearer <token>
+```
+
+---
+
 ## Expondo a API com Ngrok
 
 ```bash
 ngrok http 3000
 ```
 
-O Ngrok fornecerá uma URL pública:
+O Ngrok fornecerá uma URL pública semelhante a:
 
 ```text
 https://abc123.ngrok-free.app
 ```
 
+---
+
 ## Estrutura do Projeto
 
 ```text
 project/
-├── controllers/
-├── routes/
 ├── config/
-├── services/
+├── controllers/
+├── middlewares/
+├── routes/
+├── scripts/
+├── app.js
 ├── server.js
-└── package.json
+├── package.json
+└── .env
 ```
+
+---
+
+## Fluxo de Utilização
+
+1. Criar um usuário.
+2. Realizar login.
+3. Receber um token JWT.
+4. Gerar uma chave de experimento.
+5. Criar um experimento utilizando a chave gerada.
+6. Consultar ou atualizar experimentos.
+7. Gerar e baixar relatórios CSV.
+
+---
 
 ## Autor
 
