@@ -2,6 +2,10 @@ const { getDB } = require("../config/db");
 const { ObjectId } = require("mongodb");
 const { generateCharts } = require("../scripts/chartGenerator");
 
+const fs = require("fs");
+const path = require("path");
+const { Parser } = require("json2csv");
+
 function matchesFilters(exec, filters) {
   return Object.entries(filters).every(([field, filterValue]) => {
     const execValue = exec[field];
@@ -43,17 +47,20 @@ async function createCharts(req, res) {
     const { charts, filters = {} } = req.body;
 
     const db = getDB();
-
     const collection = db.collection("experimentos");
 
-    let experimento;
+    let experimentos;
 
     if (filters._id) {
       if (Array.isArray(filters._id)) {
+        const ids = filters._id.map((id) =>
+          ObjectId.isValid(id) ? new ObjectId(id) : id
+        );
+
         experimentos = await collection
           .find({
             _id: {
-              $in: filters._id,
+              $in: ids,
             },
           })
           .toArray();
@@ -79,7 +86,9 @@ async function createCharts(req, res) {
     const { _id, ...executionFilters } = filters;
 
     const data = experimentos.flatMap((exp) =>
-      exp.execucoes.filter((exec) => matchesFilters(exec, executionFilters)),
+      (exp.execucoes || []).filter((exec) =>
+        matchesFilters(exec, executionFilters)
+      )
     );
 
     if (data.length === 0) {
@@ -89,11 +98,57 @@ async function createCharts(req, res) {
       });
     }
 
-    console.log(charts);
-    console.log(filters)
     const result = await generateCharts(charts, data);
 
-    return res.status(200).json(result);
+    // Gerar CSV
+    const parser = new Parser();
+    const csv = parser.parse(data);
+
+    // Garantir que a pasta reports exista
+    const reportsDir = path.join(__dirname, "../reports");
+
+    if (!fs.existsSync(reportsDir)) {
+      fs.mkdirSync(reportsDir, { recursive: true });
+    }
+
+    // Criar arquivo CSV
+    const fileName = `report-${Date.now()}.csv`;
+    const filePath = path.join(reportsDir, fileName);
+
+    fs.writeFileSync(filePath, csv);
+
+    return res.status(200).json({
+      ...result,
+      csvUrl: `${req.protocol}://${req.get(
+        "host"
+      )}/charts/download/${fileName}`,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+function downloadCsv(req, res) {
+  try {
+    const filePath = path.join(
+      __dirname,
+      "../reports",
+      req.params.file
+    );
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: "Arquivo não encontrado.",
+      });
+    }
+
+    return res.download(filePath);
   } catch (error) {
     console.error(error);
 
@@ -106,4 +161,5 @@ async function createCharts(req, res) {
 
 module.exports = {
   createCharts,
+  downloadCsv,
 };

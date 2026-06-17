@@ -38,6 +38,11 @@ const UserSchema = new mongoose.Schema(
       minlength: [8, "A senha deve possuir no mínimo 8 caracteres"],
       select: false,
     },
+
+    experimentKeys: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,
