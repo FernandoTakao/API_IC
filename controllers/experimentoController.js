@@ -234,6 +234,8 @@ exports.generateExperimentKey = async (req, res) => {
       active: true,
     };
 
+    console.log("req.user.id:", req.user.id);
+    console.log("tipo:", typeof req.user.id);
     const result = await db.collection("users").updateOne(
       { _id: new ObjectId(req.user.id) },
       {

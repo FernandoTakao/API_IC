@@ -17,6 +17,8 @@ module.exports = (req, res, next) => {
       process.env.JWT_SECRET
     );
 
+    console.log(decoded);
+
     req.user = {
       id: decoded.userId
     };
