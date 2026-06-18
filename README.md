@@ -125,7 +125,7 @@ Exemplo de body:
 ```json
 {
   "emailInstitucional": "fernando@universidade.edu",
-  "password": "123456"
+  "senha": "123456"
 }
 ```
 
