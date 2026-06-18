@@ -30,7 +30,7 @@ exports.createExperimento = async (req, res) => {
 
     const exists = await db.collection("experimentos").findOne({
       key,
-      userId: new ObjectId(req.userId),
+      userId: new ObjectId(req.user.id),
     });
 
     if (exists) {
@@ -42,13 +42,13 @@ exports.createExperimento = async (req, res) => {
     const experimento = {
       ...req.body,
       key,
-      userId: new ObjectId(req.userId),
+      userId: new ObjectId(req.user.id),
       createdAt: new Date(),
     };
 
     const result = await db.collection("experimentos").insertOne(experimento);
 
-    await User.findByIdAndUpdate(req.userId, {
+    await User.findByIdAndUpdate(req.user.id, {
       $addToSet: {
         experimentKeys: key,
       },
@@ -71,9 +71,11 @@ exports.getMyExperimentos = async (req, res) => {
   try {
     const db = getDB();
 
-    const experimentos = await db.collection("experimentos").find({
-      userId: new ObjectId(req.userId),
-    }).toArray();
+    const experimentos = await db.collection("experimentos")
+      .find({
+        userId: new ObjectId(req.user.id),
+      })
+      .toArray();
 
     res.status(200).json(experimentos);
   } catch (err) {
@@ -90,7 +92,7 @@ exports.getExperimentoByKey = async (req, res) => {
 
     const query = {
       key: req.params.key?.trim(),
-      userId: new ObjectId(req.userId),
+      userId: new ObjectId(req.user.id),
     };
 
     const experimento = await db.collection("experimentos").findOne(query);
@@ -116,7 +118,7 @@ exports.updateExperimento = async (req, res) => {
 
     const query = {
       key: req.params.key?.trim(),
-      userId: new ObjectId(req.userId),
+      userId: new ObjectId(req.user.id),
     };
 
     const { key, userId, _id, ...updateData } = req.body;
@@ -148,7 +150,7 @@ exports.deleteExperimento = async (req, res) => {
 
     const query = {
       key: req.params.key?.trim(),
-      userId: new ObjectId(req.userId),
+      userId: new ObjectId(req.user.id),
     };
 
     const result = await db.collection("experimentos").findOneAndDelete(query);
@@ -159,7 +161,7 @@ exports.deleteExperimento = async (req, res) => {
       });
     }
 
-    await User.findByIdAndUpdate(req.userId, {
+    await User.findByIdAndUpdate(req.user.id, {
       $pull: {
         experimentKeys: req.params.key.trim(),
       },
@@ -182,7 +184,7 @@ exports.getExperimentoColunas = async (req, res) => {
 
     const query = {
       key: req.params.key?.trim(),
-      userId: new ObjectId(req.userId),
+      userId: new ObjectId(req.user.id),
     };
 
     const experimento = await db.collection("experimentos").findOne(
