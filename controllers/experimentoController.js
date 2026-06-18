@@ -15,11 +15,12 @@ function generateKey(length = 8) {
   return key;
 }
 
+// ================= CREATE =================
 exports.createExperimento = async (req, res) => {
   try {
     const db = getDB();
 
-    const { key } = req.body;
+    const key = req.body.key?.trim();
 
     if (!key) {
       return res.status(400).json({
@@ -29,16 +30,18 @@ exports.createExperimento = async (req, res) => {
 
     const exists = await db.collection("experimentos").findOne({
       key,
+      userId: new ObjectId(req.userId),
     });
 
     if (exists) {
       return res.status(409).json({
-        error: "Esta chave já está em uso",
+        error: "Esta chave já está em uso para este usuário",
       });
     }
 
     const experimento = {
       ...req.body,
+      key,
       userId: new ObjectId(req.userId),
       createdAt: new Date(),
     };
@@ -63,6 +66,7 @@ exports.createExperimento = async (req, res) => {
   }
 };
 
+// ================= GET ALL =================
 exports.getMyExperimentos = async (req, res) => {
   try {
     const db = getDB();
@@ -82,12 +86,15 @@ exports.getMyExperimentos = async (req, res) => {
   }
 };
 
+// ================= GET BY KEY =================
 exports.getExperimentoByKey = async (req, res) => {
   try {
     const db = getDB();
 
+    const key = req.params.key?.trim();
+
     const experimento = await db.collection("experimentos").findOne({
-      key: req.params.key,
+      key,
       userId: new ObjectId(req.userId),
     });
 
@@ -105,15 +112,18 @@ exports.getExperimentoByKey = async (req, res) => {
   }
 };
 
+// ================= UPDATE =================
 exports.updateExperimento = async (req, res) => {
   try {
     const db = getDB();
 
-    const { key, userId, _id, ...updateData } = req.body;
+    const key = req.params.key?.trim();
+
+    const { key: _, userId, _id, ...updateData } = req.body;
 
     const result = await db.collection("experimentos").findOneAndUpdate(
       {
-        key: req.params.key,
+        key,
         userId: new ObjectId(req.userId),
       },
       {
@@ -138,16 +148,19 @@ exports.updateExperimento = async (req, res) => {
   }
 };
 
+// ================= DELETE =================
 exports.deleteExperimento = async (req, res) => {
   try {
     const db = getDB();
 
+    const key = req.params.key?.trim();
+
     const result = await db.collection("experimentos").findOneAndDelete({
-      key: req.params.key,
+      key,
       userId: new ObjectId(req.userId),
     });
 
-    if (!result) {
+    if (!result || !result.value) {
       return res.status(404).json({
         message: "Experimento não encontrado",
       });
@@ -155,7 +168,7 @@ exports.deleteExperimento = async (req, res) => {
 
     await User.findByIdAndUpdate(req.userId, {
       $pull: {
-        experimentKeys: req.params.key,
+        experimentKeys: key,
       },
     });
 
@@ -169,13 +182,16 @@ exports.deleteExperimento = async (req, res) => {
   }
 };
 
+// ================= COLUNAS =================
 exports.getExperimentoColunas = async (req, res) => {
   try {
     const db = getDB();
 
+    const key = req.params.key?.trim();
+
     const experimento = await db.collection("experimentos").findOne(
       {
-        key: req.params.key,
+        key,
         userId: new ObjectId(req.userId),
       },
       {
@@ -191,11 +207,7 @@ exports.getExperimentoColunas = async (req, res) => {
       });
     }
 
-    if (
-      !experimento.execucoes ||
-      !Array.isArray(experimento.execucoes) ||
-      experimento.execucoes.length === 0
-    ) {
+    if (!experimento.execucoes?.length) {
       return res.status(400).json({
         message: "O experimento não possui execuções",
       });
@@ -211,6 +223,7 @@ exports.getExperimentoColunas = async (req, res) => {
   }
 };
 
+// ================= GENERATE KEY =================
 exports.generateExperimentKey = async (req, res) => {
   try {
     const db = getDB();
