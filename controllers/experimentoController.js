@@ -71,12 +71,9 @@ exports.getMyExperimentos = async (req, res) => {
   try {
     const db = getDB();
 
-    const experimentos = await db
-      .collection("experimentos")
-      .find({
-        userId: new ObjectId(req.userId),
-      })
-      .toArray();
+    const experimentos = await db.collection("experimentos").find({
+      userId: new ObjectId(req.userId),
+    }).toArray();
 
     res.status(200).json(experimentos);
   } catch (err) {
@@ -91,12 +88,12 @@ exports.getExperimentoByKey = async (req, res) => {
   try {
     const db = getDB();
 
-    const key = req.params.key?.trim();
-
-    const experimento = await db.collection("experimentos").findOne({
-      key,
+    const query = {
+      key: req.params.key?.trim(),
       userId: new ObjectId(req.userId),
-    });
+    };
+
+    const experimento = await db.collection("experimentos").findOne(query);
 
     if (!experimento) {
       return res.status(404).json({
@@ -117,21 +114,17 @@ exports.updateExperimento = async (req, res) => {
   try {
     const db = getDB();
 
-    const key = req.params.key?.trim();
+    const query = {
+      key: req.params.key?.trim(),
+      userId: new ObjectId(req.userId),
+    };
 
-    const { key: _, userId, _id, ...updateData } = req.body;
+    const { key, userId, _id, ...updateData } = req.body;
 
     const result = await db.collection("experimentos").findOneAndUpdate(
-      {
-        key,
-        userId: new ObjectId(req.userId),
-      },
-      {
-        $set: updateData,
-      },
-      {
-        returnDocument: "after",
-      },
+      query,
+      { $set: updateData },
+      { returnDocument: "after" }
     );
 
     if (!result || !result.value) {
@@ -153,12 +146,12 @@ exports.deleteExperimento = async (req, res) => {
   try {
     const db = getDB();
 
-    const key = req.params.key?.trim();
-
-    const result = await db.collection("experimentos").findOneAndDelete({
-      key,
+    const query = {
+      key: req.params.key?.trim(),
       userId: new ObjectId(req.userId),
-    });
+    };
+
+    const result = await db.collection("experimentos").findOneAndDelete(query);
 
     if (!result || !result.value) {
       return res.status(404).json({
@@ -168,7 +161,7 @@ exports.deleteExperimento = async (req, res) => {
 
     await User.findByIdAndUpdate(req.userId, {
       $pull: {
-        experimentKeys: key,
+        experimentKeys: req.params.key.trim(),
       },
     });
 
@@ -187,18 +180,18 @@ exports.getExperimentoColunas = async (req, res) => {
   try {
     const db = getDB();
 
-    const key = req.params.key?.trim();
+    const query = {
+      key: req.params.key?.trim(),
+      userId: new ObjectId(req.userId),
+    };
 
     const experimento = await db.collection("experimentos").findOne(
-      {
-        key,
-        userId: new ObjectId(req.userId),
-      },
+      query,
       {
         projection: {
           execucoes: { $slice: 1 },
         },
-      },
+      }
     );
 
     if (!experimento) {
@@ -253,7 +246,7 @@ exports.generateExperimentKey = async (req, res) => {
         $push: {
           experimentKeys: keyData,
         },
-      },
+      }
     );
 
     if (result.matchedCount === 0) {
