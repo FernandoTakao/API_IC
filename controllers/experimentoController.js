@@ -228,7 +228,7 @@ exports.generateExperimentKey = async (req, res) => {
       key = generateKey();
 
       const userWithKey = await db.collection("users").findOne({
-        "experimentKeys.key": key,
+        "experimentKeys": key,
       });
 
       exists = !!userWithKey;
