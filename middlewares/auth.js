@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Token não informado"
+        message: "Token não informado",
       });
     }
 
@@ -17,13 +17,14 @@ module.exports = (req, res, next) => {
       process.env.JWT_SECRET
     );
 
-    req.userId = decoded.userId;
+    req.user = {
+      id: decoded.userId
+    };
 
     next();
-
   } catch (err) {
     return res.status(401).json({
-      message: "Token inválido"
+      message: "Token inválido",
     });
   }
 };
