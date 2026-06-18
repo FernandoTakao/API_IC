@@ -5,7 +5,7 @@ const auth = require("../middlewares/auth");
 const experimentoController = require("../controllers/experimentoController");
 
 router.post("/", auth, experimentoController.createExperimento);
-router.post("/chaves",experimentoController.generateExperimentKey);
+router.post("/chaves",auth, experimentoController.generateExperimentKey);
 router.get("/meus-experimentos", auth, experimentoController.getMyExperimentos);
 router.get("/:key/colunas", auth, experimentoController.getExperimentoColunas);
 router.get("/:key", auth, experimentoController.getExperimentoByKey);

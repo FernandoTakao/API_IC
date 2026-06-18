@@ -2,7 +2,6 @@ const { getDB } = require("../config/db");
 const { ObjectId } = require("mongodb");
 const User = require("../models/User");
 
-
 function generateKey(length = 8) {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -44,18 +43,13 @@ exports.createExperimento = async (req, res) => {
       createdAt: new Date(),
     };
 
-    const result = await db
-      .collection("experimentos")
-      .insertOne(experimento);
+    const result = await db.collection("experimentos").insertOne(experimento);
 
-    await User.findByIdAndUpdate(
-      req.userId,
-      {
-        $addToSet: {
-          experimentKeys: key,
-        },
-      }
-    );
+    await User.findByIdAndUpdate(req.userId, {
+      $addToSet: {
+        experimentKeys: key,
+      },
+    });
 
     res.status(201).json({
       message: "Experimento criado com sucesso",
@@ -88,7 +82,7 @@ exports.getMyExperimentos = async (req, res) => {
   }
 };
 
-exports.getExperimentoByKey= async (req, res) => {
+exports.getExperimentoByKey = async (req, res) => {
   try {
     const db = getDB();
 
@@ -114,7 +108,7 @@ exports.getExperimentoByKey= async (req, res) => {
 exports.updateExperimento = async (req, res) => {
   try {
     const db = getDB();
-    
+
     const { key, userId, _id, ...updateData } = req.body;
 
     const result = await db.collection("experimentos").findOneAndUpdate(
@@ -127,7 +121,7 @@ exports.updateExperimento = async (req, res) => {
       },
       {
         returnDocument: "after",
-      }
+      },
     );
 
     if (!result || !result.value) {
@@ -188,7 +182,7 @@ exports.getExperimentoColunas = async (req, res) => {
         projection: {
           execucoes: { $slice: 1 },
         },
-      }
+      },
     );
 
     if (!experimento) {
@@ -227,14 +221,39 @@ exports.generateExperimentKey = async (req, res) => {
     while (exists) {
       key = generateKey();
 
-      const experiment = await db.collection("experimentos").findOne({
-        key,
+      const userWithKey = await db.collection("users").findOne({
+        "experimentKeys.key": key,
       });
 
-      exists = Boolean(experiment);
+      exists = !!userWithKey;
     }
 
-    res.status(200).json({ key });
+    const keyData = {
+      key,
+      createdAt: new Date(),
+      active: true,
+    };
+
+    const result = await db.collection("users").updateOne(
+      { _id: new ObjectId(req.user.id) },
+      {
+        $push: {
+          experimentKeys: keyData,
+        },
+      },
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        message: "Usuário não encontrado",
+      });
+    }
+
+    res.status(201).json({
+      message: "Chave gerada com sucesso",
+      key: keyData.key,
+      createdAt: keyData.createdAt,
+    });
   } catch (error) {
     res.status(500).json({
       message: "Erro ao gerar chave",
