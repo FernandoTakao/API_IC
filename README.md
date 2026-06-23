@@ -173,7 +173,6 @@ Exemplo de body:
 {
   "nome": "DeepWeeds - EfficientNetV2B0",
   "descricao": "Teste de inferência",
-  "key": "A7K9P2",
   "execucoes": [
     {
       "modelo": "efficientnetv2b0",
@@ -210,19 +209,19 @@ Authorization: Bearer <token>
 
 ### Buscar experimento por Key
 
-**GET** `/api/experimentos/:key`
+**GET** `/api/experimentos/:id`
 
 ### Obter colunas disponíveis de um experimento
 
-**GET** `/api/experimentos/:key/colunas`
+**GET** `/api/experimentos/:id/colunas`
 
 ### Atualizar experimento
 
-**PATCH** `/api/experimentos/:key`
+**PATCH** `/api/experimentos/:id`
 
 ### Remover experimento
 
-**DELETE** `/api/experimentos/:key`
+**DELETE** `/api/experimentos/:id`
 
 ---
 
@@ -271,10 +270,10 @@ Authorization: Bearer <token>
 As seguintes rotas exigem autenticação JWT:
 
 * POST `/api/experimentos`
-* GET `/api/experimentos/:key`
-* GET `/api/experimentos/:key/colunas`
-* PATCH `/api/experimentos/:key`
-* DELETE `/api/experimentos/:key`
+* GET `/api/experimentos/:id`
+* GET `/api/experimentos/:id/colunas`
+* PATCH `/api/experimentos/:id`
+* DELETE `/api/experimentos/:id`
 * GET `/api/experimentos/meus-experimentos`
 * GET `/api/charts/download/:file`
 
@@ -322,8 +321,8 @@ project/
 1. Criar um usuário.
 2. Realizar login.
 3. Receber um token JWT.
-4. Gerar uma chave de experimento.
-5. Criar um experimento utilizando a chave gerada.
+4. Gerar uma chave de experimento e criar um experimento vazio com a chave automaticamente.
+5. Adicionar dados no experimento criado.
 6. Consultar ou atualizar experimentos.
 7. Gerar e baixar relatórios CSV.
 
