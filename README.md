@@ -165,7 +165,7 @@ Resposta:
 
 ### Criar experimento
 
-**POST** `/api/experimentos`
+**PATCH** `/api/experimentos`
 
 Requer autenticação
 
@@ -179,8 +179,6 @@ Exemplo de body:
 
 ```json
 {
-  "nome": "DeepWeeds - EfficientNetV2B0",
-  "descricao": "Teste de inferência",
   "execucoes": [
     {
       "modelo": "efficientnetv2b0",
