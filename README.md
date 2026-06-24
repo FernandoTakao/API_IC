@@ -159,7 +159,9 @@ Resposta:
 
 ```json
 {
-  "key": "A7K9P2"
+    "message": "Experimento criado com sucesso",
+    "id": "HHgWQ9qI",
+    "createdAt": "2026-06-24T20:01:58.412Z"
 }
 ```
 
