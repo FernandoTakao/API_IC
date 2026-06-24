@@ -147,6 +147,14 @@ Resposta:
 
 **POST** `/api/experimentos/chaves`
 
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
+
 Resposta:
 
 ```json
