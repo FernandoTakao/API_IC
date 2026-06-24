@@ -163,9 +163,32 @@ Resposta:
 }
 ```
 
-### Criar experimento
+Um experimento vazio será criado com esta chave, com isto, utilize a endpoint PATCH para adicionar os novos dados
 
-**PATCH** `/api/experimentos`
+
+### Listar meus experimentos
+
+**GET** `/api/experimentos/meus-experimentos`
+
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
+
+### Buscar experimento por Key
+
+**GET** `/api/experimentos/:id`
+
+### Obter colunas disponíveis de um experimento
+
+**GET** `/api/experimentos/:id/colunas`
+
+### Atualizar experimento
+
+**PATCH** `/api/experimentos/:id`
 
 Requer autenticação
 
@@ -200,30 +223,6 @@ Exemplo de body:
   ]
 }
 ```
-
-### Listar meus experimentos
-
-**GET** `/api/experimentos/meus-experimentos`
-
-Requer autenticação
-
-Header:
-
-```http
-Authorization: Bearer <token>
-```
-
-### Buscar experimento por Key
-
-**GET** `/api/experimentos/:id`
-
-### Obter colunas disponíveis de um experimento
-
-**GET** `/api/experimentos/:id/colunas`
-
-### Atualizar experimento
-
-**PATCH** `/api/experimentos/:id`
 
 ### Remover experimento
 
