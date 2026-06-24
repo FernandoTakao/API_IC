@@ -231,6 +231,14 @@ Authorization: Bearer <token>
 
 **POST** `/api/charts`
 
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
+
 Exemplo de body:
 
 ```json

@@ -4,7 +4,7 @@ const router = express.Router();
 
 const chartController = require("../controllers/chartController");
 
-router.post("/", chartController.createCharts);
+router.post("/", auth, chartController.createCharts);
 
 router.get("/download/:file", auth, chartController.downloadCsv);
 
