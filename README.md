@@ -234,7 +234,7 @@ Exemplo de body:
 
 ## Relatórios
 
-### Gerar relatório CSV
+### Gerar relatório CSV e gráficos
 
 **POST** `/api/charts`
 
@@ -262,7 +262,12 @@ Resposta:
 
 ```json
 {
-  "success": true
+  {"chart1": "base64",
+  "chart2": "base64",
+  "chart3": "base64",
+  "chart4": "base64",
+  "csvUrl": "urlExemplo"
+}
 }
 ```
 
@@ -284,12 +289,13 @@ Authorization: Bearer <token>
 
 As seguintes rotas exigem autenticação JWT:
 
-* POST `/api/experimentos`
+* POST `/api/chaves`
 * GET `/api/experimentos/:id`
 * GET `/api/experimentos/:id/colunas`
 * PATCH `/api/experimentos/:id`
 * DELETE `/api/experimentos/:id`
 * GET `/api/experimentos/meus-experimentos`
+* POST `/api/charts`
 * GET `/api/charts/download/:file`
 
 Header obrigatório:
