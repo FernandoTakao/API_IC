@@ -184,9 +184,25 @@ Authorization: Bearer <token>
 
 **GET** `/api/experimentos/:id`
 
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
+
 ### Obter colunas disponíveis de um experimento
 
 **GET** `/api/experimentos/:id/colunas`
+
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
 
 ### Atualizar experimento
 
@@ -229,6 +245,14 @@ Exemplo de body:
 ### Remover experimento
 
 **DELETE** `/api/experimentos/:id`
+
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
 
 ---
 
