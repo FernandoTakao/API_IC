@@ -107,10 +107,24 @@ Exemplo de body:
 ### Atualizar usuário
 
 **PATCH** `/api/users/:id`
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
 
 ### Remover usuário
 
 **DELETE** `/api/users/:id`
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
 
 ---
 
