@@ -49,6 +49,8 @@ async function createCharts(req, res) {
     const db = getDB();
     const collection = db.collection("experimentos");
 
+    const userId = new ObjectId(req.user.id);
+
     let experimentos;
 
     if (filters._id) {
@@ -59,6 +61,7 @@ async function createCharts(req, res) {
 
         experimentos = await collection
           .find({
+            userId,
             _id: {
               $in: ids,
             },
@@ -68,19 +71,25 @@ async function createCharts(req, res) {
         try {
           experimentos = await collection
             .find({
+              userId,
               _id: new ObjectId(filters._id),
             })
             .toArray();
         } catch {
           experimentos = await collection
             .find({
+              userId,
               _id: filters._id,
             })
             .toArray();
         }
       }
     } else {
-      experimentos = await collection.find({}).toArray();
+      experimentos = await collection
+        .find({
+          userId,
+        })
+        .toArray();
     }
 
     const { _id, ...executionFilters } = filters;
@@ -115,6 +124,8 @@ async function createCharts(req, res) {
     fs.writeFileSync(filePath, csv);
 
     return res.status(200).json({
+      success: true,
+      execucoes: data,
       ...result,
       csvUrl: `${req.protocol}://${req.get(
         "host"
