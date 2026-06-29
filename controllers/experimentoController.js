@@ -63,8 +63,6 @@ exports.getExperimentoById = async (req, res) => {
 
 // ================= GET EXPERIMENT INFO =================
 
-const { ObjectId } = require("mongodb");
-
 exports.getExperimentInfo = async (req, res) => {
   try {
     const db = getDB();
@@ -72,34 +70,33 @@ exports.getExperimentInfo = async (req, res) => {
     const experimentos = await db
       .collection("experimentos")
       .find({
-        userId: new ObjectId(req.user.id)
+        userId: new ObjectId(req.user.id),
       })
       .toArray();
 
     if (experimentos.length === 0) {
       return res.status(404).json({
-        message: "Nenhum experimento encontrado."
+        message: "Nenhum experimento encontrado.",
       });
     }
 
-    const response = experimentos.map(exp => {
-      const execution = exp.execucoes?.[0];
+    const response = experimentos.map((exp) => {
+      const execucao = exp.execucoes?.[0];
 
       return {
         _id: exp._id,
-        modelo: execution?.modelo ?? null,
-        dataset: execution?.dataset ?? null,
-        dispositivo: execution?.dispositivo ?? null
+        modelo: execucao?.modelo ?? null,
+        dataset: execucao?.dataset ?? null,
+        dispositivo: execucao?.dispositivo ?? null,
       };
     });
 
     return res.status(200).json(response);
-
   } catch (error) {
     console.error(error);
 
     return res.status(500).json({
-      message: "Erro interno do servidor."
+      message: "Erro interno do servidor.",
     });
   }
 };
