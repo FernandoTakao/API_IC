@@ -67,7 +67,7 @@ exports.getExperimentInfo = async (req, res) => {
   try {
     const db = getDB();
     
-    const experiments = await db
+    const experimentos = await db
       .collection("experiments")
       .find(
         {},
