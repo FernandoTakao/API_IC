@@ -68,7 +68,7 @@ exports.getExperimentInfo = async (req, res) => {
     const db = getDB();
     
     const experimentos = await db
-      .collection("experiments")
+      .collection("experimentos")
       .find({})
       .toArray();
 
