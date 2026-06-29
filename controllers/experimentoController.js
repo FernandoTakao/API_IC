@@ -61,6 +61,42 @@ exports.getExperimentoById = async (req, res) => {
   }
 };
 
+// ================= GET EXPERIMENT INFO =================
+
+exports.getExperimentInfo = async (req, res) => {
+  try {
+    const db = getDB();
+    const { id } = req.params;
+
+    const experiment = await db.collection("experiments").findOne(
+      { _id: id },
+      {
+        projection: {
+          _id: 1,
+          modelo: 1,
+          dataset: 1,
+          dispositivo: 1
+        }
+      }
+    );
+
+    if (!experiment) {
+      return res.status(404).json({
+        message: "Experimento não encontrado."
+      });
+    }
+
+    return res.status(200).json(experiment);
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Erro interno do servidor."
+    });
+  }
+};
+
 // ================= UPDATE =================
 exports.updateExperimento = async (req, res) => {
   try {
