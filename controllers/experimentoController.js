@@ -20,19 +20,11 @@ exports.getMyExperimentos = async (req, res) => {
   try {
     const db = getDB();
 
-    const experiments = await db
-      .collection("experiments")
-      .find(
-        {},
-        {
-          projection: {
-            _id: 1,
-            modelo: 1,
-            dataset: 1,
-            dispositivo: 1
-          }
-        }
-      )
+    const experimentos = await db
+      .collection("experimentos")
+      .find({
+        userId: new ObjectId(req.user.id),
+      })
       .toArray();
 
     res.status(200).json(experimentos);
@@ -74,19 +66,21 @@ exports.getExperimentoById = async (req, res) => {
 exports.getExperimentInfo = async (req, res) => {
   try {
     const db = getDB();
-    const { id } = req.params;
-
-    const experiment = await db.collection("experiments").findOne(
-      { _id: id },
-      {
-        projection: {
-          _id: 1,
-          modelo: 1,
-          dataset: 1,
-          dispositivo: 1
+    
+    const experiments = await db
+      .collection("experiments")
+      .find(
+        {},
+        {
+          projection: {
+            _id: 1,
+            modelo: 1,
+            dataset: 1,
+            dispositivo: 1
+          }
         }
-      }
-    );
+      )
+      .toArray();
 
     if (!experiment) {
       return res.status(404).json({
@@ -94,7 +88,7 @@ exports.getExperimentInfo = async (req, res) => {
       });
     }
 
-    return res.status(200).json(experiment);
+    return res.status(200).json(experimentos);
 
   } catch (error) {
     console.error(error);
