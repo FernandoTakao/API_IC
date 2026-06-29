@@ -308,7 +308,7 @@ Authorization: Bearer <token>
 
 ## Relatórios
 
-### Gerar relatório CSV e gráficos
+### Gerar gráficos
 
 **POST** `/api/charts`
 
@@ -335,7 +335,7 @@ Exemplo de body:
 Resposta:
 
 ```json
-{
+{ "execucoes": [...],
   {"chart1": "base64",
   "chart2": "base64",
   "chart3": "base64",
@@ -343,21 +343,6 @@ Resposta:
 }
 }
 ```
-
-### Download de relatório CSV
-
-**GET** `/api/charts/download/:file`
-
-Requer autenticação
-
-Header:
-
-```http
-Authorization: Bearer <token>
-```
-
----
-
 ## Rotas Protegidas
 
 As seguintes rotas exigem autenticação JWT:
@@ -368,8 +353,8 @@ As seguintes rotas exigem autenticação JWT:
 * PATCH `/api/experimentos/:id`
 * DELETE `/api/experimentos/:id`
 * GET `/api/experimentos/meus-experimentos`
+* GET `/api/experimentos/meus-experimentos/info`
 * POST `/api/charts`
-* GET `/api/charts/download/:file`
 
 Header obrigatório:
 
@@ -418,7 +403,7 @@ project/
 4. Gerar uma chave de experimento e criar um experimento vazio com a chave automaticamente.
 5. Adicionar dados no experimento criado.
 6. Consultar ou atualizar experimentos.
-7. Gerar e baixar relatórios CSV.
+7. Gerar graficos.
 
 ---
 
