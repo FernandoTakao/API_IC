@@ -82,7 +82,7 @@ exports.getExperimentInfo = async (req, res) => {
       )
       .toArray();
 
-    if (!experiment) {
+    if (!experimentos) {
       return res.status(404).json({
         message: "Experimento não encontrado."
       });
