@@ -182,7 +182,7 @@ Resposta:
 Um experimento vazio será criado com esta chave, com isto, utilize a endpoint PATCH para adicionar os novos dados
 
 
-### Listar meus experimentos
+### Listar meus experimentos com todas a informações
 
 **GET** `/api/experimentos/meus-experimentos`
 
@@ -192,6 +192,42 @@ Header:
 
 ```http
 Authorization: Bearer <token>
+```
+
+### Listar meus experimentos com as informações essenciais
+
+**GET** `/api/experimentos/meus-experimentos/info`
+
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
+Resposta:
+
+```json
+[
+  {
+    "_id": "Ab12Cd34",
+    "modelo": "YOLOv8",
+    "dataset": "COCO",
+    "dispositivo": "RTX 4060"
+  },
+  {
+    "_id": "Ef56Gh78",
+    "modelo": "ResNet50",
+    "dataset": "ImageNet",
+    "dispositivo": "RTX 3090"
+  },
+  {
+    "_id": "Ij90Kl12",
+    "modelo": "MobileNet",
+    "dataset": "CIFAR-10",
+    "dispositivo": "Jetson Nano"
+  }
+]
 ```
 
 ### Buscar experimento por Key
@@ -303,8 +339,7 @@ Resposta:
   {"chart1": "base64",
   "chart2": "base64",
   "chart3": "base64",
-  "chart4": "base64",
-  "csvUrl": "urlExemplo"
+  "chart4": "base64"
 }
 }
 ```

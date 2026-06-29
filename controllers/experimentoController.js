@@ -20,11 +20,19 @@ exports.getMyExperimentos = async (req, res) => {
   try {
     const db = getDB();
 
-    const experimentos = await db
-      .collection("experimentos")
-      .find({
-        userId: new ObjectId(req.user.id),
-      })
+    const experiments = await db
+      .collection("experiments")
+      .find(
+        {},
+        {
+          projection: {
+            _id: 1,
+            modelo: 1,
+            dataset: 1,
+            dispositivo: 1
+          }
+        }
+      )
       .toArray();
 
     res.status(200).json(experimentos);
