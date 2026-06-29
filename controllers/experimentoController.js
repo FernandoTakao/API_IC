@@ -63,32 +63,35 @@ exports.getExperimentoById = async (req, res) => {
 
 // ================= GET EXPERIMENT INFO =================
 
+const { ObjectId } = require("mongodb");
+
 exports.getExperimentInfo = async (req, res) => {
   try {
     const db = getDB();
-    
+
     const experimentos = await db
       .collection("experimentos")
-      .find({})
+      .find({
+        userId: new ObjectId(req.user.id)
+      })
       .toArray();
 
+    if (experimentos.length === 0) {
+      return res.status(404).json({
+        message: "Nenhum experimento encontrado."
+      });
+    }
+
     const response = experimentos.map(exp => {
-      const execution = exp.executions?.[0];
+      const execution = exp.execucoes?.[0];
 
       return {
         _id: exp._id,
-        modelo: execution?.modelo || null,
-        dataset: execution?.dataset || null,
-        dispositivo: execution?.dispositivo || null
+        modelo: execution?.modelo ?? null,
+        dataset: execution?.dataset ?? null,
+        dispositivo: execution?.dispositivo ?? null
       };
     });
-
-
-    if (!experimentos) {
-      return res.status(404).json({
-        message: "Experimento não encontrado."
-      });
-    }
 
     return res.status(200).json(response);
 
