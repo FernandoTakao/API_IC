@@ -107,7 +107,6 @@ async function createCharts(req, res) {
 
     return res.status(200).json({
       success: true,
-      execucoes: data,
       ...result
     });
 
