@@ -68,19 +68,21 @@ exports.getExperimentInfo = async (req, res) => {
     const db = getDB();
     
     const experimentos = await db
-      .collection("experimentos")
-      .find(
-        {},
-        {
-          projection: {
-            _id: 1,
-            modelo: 1,
-            dataset: 1,
-            dispositivo: 1
-          }
-        }
-      )
+      .collection("experiments")
+      .find({})
       .toArray();
+
+    const response = experimentos.map(exp => {
+      const execution = exp.executions?.[0];
+
+      return {
+        _id: exp._id,
+        modelo: execution?.modelo || null,
+        dataset: execution?.dataset || null,
+        dispositivo: execution?.dispositivo || null
+      };
+    });
+
 
     if (!experimentos) {
       return res.status(404).json({
@@ -88,7 +90,7 @@ exports.getExperimentInfo = async (req, res) => {
       });
     }
 
-    return res.status(200).json(experimentos);
+    return res.status(200).json(response);
 
   } catch (error) {
     console.error(error);
