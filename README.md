@@ -74,16 +74,6 @@ Authorization: Bearer <token>
 
 ## Endpoints
 
-### Verificar servidor
-
-**GET** `/`
-
-Resposta:
-
-```text
-Servidor funcionando
-```
-
 ---
 
 ## Usuários
@@ -179,12 +169,15 @@ Resposta:
 }
 ```
 
-Um experimento vazio será criado com esta chave, com isto, utilize a endpoint PATCH para adicionar os novos dados
+Um experimento vazio será criado com esta chave contendo duas listas independentes:
+execucoesScript
+execucoesMobile
+Utilize uma das rotas PATCH abaixo para enviar as execuções correspondentes ao tipo de experimento.
 
 
 ### Listar meus experimentos com todas a informações
 
-**GET** `/api/experimentos/meus-experimentos`
+**GET** `/api/experimentos`
 
 Requer autenticação
 
@@ -196,7 +189,7 @@ Authorization: Bearer <token>
 
 ### Listar meus experimentos com as informações essenciais
 
-**GET** `/api/experimentos/meus-experimentos/info`
+**GET** `/api/experimentos/info`
 
 Requer autenticação
 
@@ -242,21 +235,10 @@ Header:
 Authorization: Bearer <token>
 ```
 
-### Obter colunas disponíveis de um experimento
 
-**GET** `/api/experimentos/:id/colunas`
+### Atualizar experimento com os dados do Mobile
 
-Requer autenticação
-
-Header:
-
-```http
-Authorization: Bearer <token>
-```
-
-### Atualizar experimento
-
-**PATCH** `/api/experimentos/:id`
+**PATCH** `/api/experimentos/:id/performace`
 
 Requer autenticação
 
@@ -287,6 +269,46 @@ Exemplo de body:
       "battery_pct": 99,
       "is_charging": "YES",
       "airplane_mode": "ON"
+    }
+  ]
+}
+```
+
+### Atualizar experimento com os dados do Script
+
+**PATCH** `/api/experimentos/:id/aiMetrics`
+
+Requer autenticação
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
+
+Exemplo de body:
+
+```json
+{
+  "execucoes": [
+    {      
+      "dataset": "deepweeds",
+      "modelo": "resnet50",
+      "fold": 1,
+      "y_true_idx": 8,
+      "y_pred_idx": 8,
+      "correct": 1,
+      "pred_confidence": 0.9999825,
+      "prob_class_0": 9.516573e-14,
+      "prob_class_1": 3.491989e-10,
+      "prob_class_2": 4.1936277e-20,
+      "prob_class_3": 4.750078e-10,
+      "prob_class_4": 1.0527873e-18,
+      "prob_class_5": 0.000017577197,
+      "prob_class_6": 6.139137e-10,
+      "prob_class_7": 2.54979e-13,
+      "prob_class_8": 0.9999825,
+      "filename": "/home/leo/Documentos/mestrado/DeepWeeds-Mobile/images/deepweeds/201712…"
     }
   ]
 }
@@ -324,23 +346,35 @@ Exemplo de body:
 
 ```json
 {
-  "charts": ["chart1", "chart2", "chart3", "chart4"],
-  "filters": {
-    "dataset": "deepweeds",
-    "device": "Slow-end"
+  {
+  "charts": [...],
+  "scriptFilters": {
+    "_id": ["exp1", "exp2"],
+    "modelo": "resnet18",
+    "dataset": "deepweeds"
+  },
+  "mobileFilters": {
+    "_id": ["exp1", "exp2"],
+    "device": "Mid-end",
+    "dataset": "deepweeds"
   }
+}
 }
 ```
 
 Resposta:
 
 ```json
-{ "execucoes": [...],
-  {"chart1": "base64",
-  "chart2": "base64",
-  "chart3": "base64",
-  "chart4": "base64"
-}
+{
+  "success": true,
+  "script": {
+    "chart1": { ... },
+    "chart2": { ... }
+  },
+  "mobile": {
+    "chart1": { ... },
+    "chart2": { ... }
+  }
 }
 ```
 ## Rotas Protegidas
@@ -350,10 +384,11 @@ As seguintes rotas exigem autenticação JWT:
 * POST `/api/chaves`
 * GET `/api/experimentos/:id`
 * GET `/api/experimentos/:id/colunas`
-* PATCH `/api/experimentos/:id`
+* PATCH `/api/experimentos/:id/performance`
+* PATCH `/api/experimentos/:id/aiMetrics`
 * DELETE `/api/experimentos/:id`
-* GET `/api/experimentos/meus-experimentos`
-* GET `/api/experimentos/meus-experimentos/info`
+* GET `/api/experimentos`
+* GET `/api/experimentos/info`
 * POST `/api/charts`
 
 Header obrigatório:

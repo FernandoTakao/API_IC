@@ -15,7 +15,52 @@ function generateKey(length = 8) {
   return key;
 }
 
+async function addExecucoes(req, res, field) {
+  try {
+    const db = getDB();
+
+    const query = {
+      _id: req.params.id?.trim(),
+      userId: new ObjectId(req.user.id),
+    };
+
+    const { execucoes } = req.body;
+
+    if (!Array.isArray(execucoes)) {
+      return res.status(400).json({
+        message: "A lista de execuções é obrigatória.",
+      });
+    }
+
+    const result = await db.collection("experimentos").findOneAndUpdate(
+      query,
+      {
+        $set: {
+          [field]: execucoes,
+          updatedAt: new Date(),
+        },
+      },
+      {
+        returnDocument: "after",
+      },
+    );
+
+    if (!result) {
+      return res.status(404).json({
+        message: "Experimento não encontrado",
+      });
+    }
+
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(500).json({
+      error: err.message,
+    });
+  }
+}
+
 // ================= GET ALL =================
+
 exports.getMyExperimentos = async (req, res) => {
   try {
     const db = getDB();
@@ -36,6 +81,7 @@ exports.getMyExperimentos = async (req, res) => {
 };
 
 // ================= GET BY ID =================
+
 exports.getExperimentoById = async (req, res) => {
   try {
     const db = getDB();
@@ -63,7 +109,7 @@ exports.getExperimentoById = async (req, res) => {
 
 // ================= GET EXPERIMENT INFO =================
 
-exports.getExperimentInfo = async (req, res) => {
+exports.getExperimentoInfo = async (req, res) => {
   try {
     const db = getDB();
 
@@ -81,65 +127,40 @@ exports.getExperimentInfo = async (req, res) => {
     }
 
     const response = experimentos.map((exp) => {
-      const execucao = exp.execucoes?.[0];
+      const script = exp.execucoesScript?.[0];
+      const mobile = exp.execucoesMobile?.[0];
 
       return {
         _id: exp._id,
-        modelo: execucao?.modelo ?? null,
-        dataset: execucao?.dataset ?? null,
-        dispositivo: execucao?.dispositivo ?? null,
+        modelo: script.modelo ?? null,
+        dataset: script.dataset ?? null,
+        dispositivo: mobile.dispositivo ?? null,
       };
     });
 
     return res.status(200).json(response);
-  } catch (error) {
-    console.error(error);
-
+  } catch (err) {
     return res.status(500).json({
       message: "Erro interno do servidor.",
-    });
-  }
-};
-
-// ================= UPDATE =================
-exports.updateExperimento = async (req, res) => {
-  try {
-    const db = getDB();
-
-    const query = {
-      _id: req.params.id?.trim(),
-      userId: new ObjectId(req.user.id),
-    };
-
-    const { _id, userId, createdAt, ...updateData } = req.body;
-
-    updateData.updatedAt = new Date();
-
-    const result = await db.collection("experimentos").findOneAndUpdate(
-      query,
-      {
-        $set: updateData,
-      },
-      {
-        returnDocument: "after",
-      }
-    );
-
-    if (!result) {
-      return res.status(404).json({
-        message: "Experimento não encontrado",
-      });
-    }
-
-    res.status(200).json(result);
-  } catch (err) {
-    res.status(400).json({
       error: err.message,
     });
   }
 };
 
+// ================= ADD EXECUCOES SCRIPT =================
+
+exports.addExecucoesScript = (req, res) => {
+  return addExecucoes(req, res, "execucoesScript");
+};
+
+// ================= ADD EXECUCOES MOBILE =================
+
+exports.addExecucoesMobile = (req, res) => {
+  return addExecucoes(req, res, "execucoesMobile");
+};
+
 // ================= DELETE =================
+
 exports.deleteExperimento = async (req, res) => {
   try {
     const db = getDB();
@@ -177,48 +198,8 @@ exports.deleteExperimento = async (req, res) => {
   }
 };
 
-// ================= COLUNAS =================
-exports.getExperimentoColunas = async (req, res) => {
-  try {
-    const db = getDB();
-
-    const query = {
-      _id: req.params.id?.trim(),
-      userId: new ObjectId(req.user.id),
-    };
-
-    const experimento = await db.collection("experimentos").findOne(
-      query,
-      {
-        projection: {
-          execucoes: { $slice: 1 },
-        },
-      }
-    );
-
-    if (!experimento) {
-      return res.status(404).json({
-        message: "Experimento não encontrado",
-      });
-    }
-
-    if (!experimento.execucoes?.length) {
-      return res.status(400).json({
-        message: "O experimento não possui execuções",
-      });
-    }
-
-    const colunas = Object.keys(experimento.execucoes[0]);
-
-    res.status(200).json(colunas);
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
-  }
-};
-
 // ================= GENERATE KEY =================
+
 exports.generateExperimentKey = async (req, res) => {
   try {
     const db = getDB();
@@ -239,7 +220,8 @@ exports.generateExperimentKey = async (req, res) => {
     const experimento = {
       _id: key,
       userId: new ObjectId(req.user.id),
-      execucoes: [],
+      execucoesScript: [],
+      execucoesMobile: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -257,10 +239,10 @@ exports.generateExperimentKey = async (req, res) => {
       id: key,
       createdAt: experimento.createdAt,
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
       message: "Erro ao gerar chave",
-      error: error.message,
+      error: err.message,
     });
   }
 };

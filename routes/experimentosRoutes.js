@@ -2,14 +2,22 @@ const express = require("express");
 const router = express.Router();
 
 const auth = require("../middlewares/auth");
-const experimentoController = require("../controllers/experimentoController");
+const experimentController = require("../controllers/experimentoController");
 
-router.post("/chaves",auth, experimentoController.generateExperimentKey);
-router.get("/meus-experimentos", auth, experimentoController.getMyExperimentos);
-router.get("/meus-experimentos/info", auth, experimentoController.getExperimentInfo);
-router.get("/:id/colunas", auth, experimentoController.getExperimentoColunas);
-router.get("/:id", auth, experimentoController.getExperimentoById);
-router.patch("/:id", auth, experimentoController.updateExperimento);
-router.delete("/:id", auth, experimentoController.deleteExperimento);
+// Experimentos do usuário
+router.get("/", auth, experimentController.getMyExperimentos);
+router.get("/info", auth, experimentController.getExperimentoInfo);
+
+// Criação
+router.post("/chaves", auth, experimentController.generateExperimentKey);
+
+// Operações sobre um experimento
+router.get("/:id", auth, experimentController.getExperimentoById);
+router.delete("/:id", auth, experimentController.deleteExperimento);
+
+// Execuções
+router.patch("/:id/aiMetrics", auth, experimentController.addExecucoesScript);
+router.patch("/:id/performance", auth, experimentController.addExecucoesMobile);
+
 
 module.exports = router;

@@ -38,79 +38,96 @@ function matchesFilters(exec, filters) {
   });
 }
 
+async function getFilteredExecutions(collection, userId, filters, executionField) {
+  let experimentos;
+
+  if (filters._id) {
+    if (Array.isArray(filters._id)) {
+      const ids = filters._id.map((id) =>
+        ObjectId.isValid(id) ? new ObjectId(id) : id,
+      );
+
+      experimentos = await collection
+        .find({
+          userId,
+          _id: {
+            $in: ids,
+          },
+        })
+        .toArray();
+    } else {
+      try {
+        experimentos = await collection
+          .find({
+            userId,
+            _id: new ObjectId(filters._id),
+          })
+          .toArray();
+      } catch {
+        experimentos = await collection
+          .find({
+            userId,
+            _id: filters._id,
+          })
+          .toArray();
+      }
+    }
+  } else {
+    experimentos = await collection
+      .find({
+        userId,
+      })
+      .toArray();
+  }
+
+  const { _id, ...executionFilters } = filters;
+
+  return experimentos.flatMap((exp) =>
+    (exp[executionField] || []).filter((exec) =>
+      matchesFilters(exec, executionFilters),
+    ),
+  );
+}
+
 async function createCharts(req, res) {
   try {
-    const { charts, filters = {} } = req.body;
+    const { charts, scriptFilters = {}, mobileFilters = {} } = req.body;
 
     const db = getDB();
     const collection = db.collection("experimentos");
 
     const userId = new ObjectId(req.user.id);
 
-    let experimentos;
+    const [scriptData, mobileData] = await Promise.all([
+      getFilteredExecutions(
+        collection,
+        userId,
+        scriptFilters,
+        "execucoesScript",
+      ),
+      getFilteredExecutions(
+        collection,
+        userId,
+        mobileFilters,
+        "execucoesMobile",
+      ),
+    ]);
 
-    if (filters._id) {
-      if (Array.isArray(filters._id)) {
-        const ids = filters._id.map((id) =>
-          ObjectId.isValid(id) ? new ObjectId(id) : id
-        );
-
-        experimentos = await collection
-          .find({
-            userId,
-            _id: {
-              $in: ids,
-            },
-          })
-          .toArray();
-      } else {
-        try {
-          experimentos = await collection
-            .find({
-              userId,
-              _id: new ObjectId(filters._id),
-            })
-            .toArray();
-        } catch {
-          experimentos = await collection
-            .find({
-              userId,
-              _id: filters._id,
-            })
-            .toArray();
-        }
-      }
-    } else {
-      experimentos = await collection
-        .find({
-          userId,
-        })
-        .toArray();
-    }
-
-    const { _id, ...executionFilters } = filters;
-
-    const data = experimentos.flatMap((exp) =>
-      (exp.execucoes || []).filter((exec) =>
-        matchesFilters(exec, executionFilters)
-      )
-    );
-
-    if (data.length === 0) {
+    if (scriptData.length === 0 && mobileData.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Nenhuma execução encontrada.",
       });
     }
 
-    const result = await generateCharts(charts, data);
+    const result = await generateCharts(charts, scriptData, mobileData);
 
     return res.status(200).json({
       success: true,
-      execucoes: data,
-      ...result
+      execucoesScript: scriptData,
+      execucoesMobile: mobileData,
+      ...result,
     });
-
   } catch (error) {
     console.error(error);
 
@@ -122,5 +139,5 @@ async function createCharts(req, res) {
 }
 
 module.exports = {
-  createCharts
+  createCharts,
 };

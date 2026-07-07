@@ -1,28 +1,47 @@
-async function generateCharts(charts, data) {
-  const response = await fetch(
-    "https://analytics-api-zlo2.onrender.com/analytics",
-    {
+async function generateCharts(charts, scriptData, mobileData) {
+  const [scriptResponse, mobileResponse] = await Promise.all([
+    fetch("https://analytics-api-zlo2.onrender.com/prediction", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         charts,
-        data,
+        data: scriptData,
       }),
-    },
-  );
+    }),
 
-  const body = await response.text();
+    fetch("https://analytics-api-zlo2.onrender.com/analytics", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        charts,
+        data: mobileData,
+      }),
+    }),
+  ]);
 
-  console.log("Status:", response.status);
-
-  if (!response.ok) {
-    throw new Error(body);
+  if (!scriptResponse.ok) {
+    throw new Error(await scriptResponse.text());
   }
 
-  return JSON.parse(body);
+  if (!mobileResponse.ok) {
+    throw new Error(await mobileResponse.text());
+  }
+
+  const [scriptCharts, mobileCharts] = await Promise.all([
+    scriptResponse.json(),
+    mobileResponse.json(),
+  ]);
+
+  return {
+    script: scriptCharts,
+    mobile: mobileCharts,
+  };
 }
+
 module.exports = {
   generateCharts,
 };
