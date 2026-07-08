@@ -1,31 +1,39 @@
-async function generateCharts(charts, scriptData, mobileData) {
-  let scriptCharts = {};
-  let mobileCharts = {};
+async function generateCharts({mobileCharts, scriptCharts, mobileData, scriptData,}) {
+  let generatedScriptCharts = {};
+  let generatedMobileCharts = {};
 
   const promises = [];
 
-  if (scriptData.length > 0) {
+  if (scriptCharts.length > 0 && scriptData.length > 0) {
+    const hasPareto = scriptCharts.includes("chart_pareto");
+
+    const scriptBody = {
+      charts: scriptCharts,
+      data: scriptData,
+    };
+
+    if (hasPareto) {
+      scriptBody.mobileData = mobileData;
+    }
+
     promises.push(
       fetch("https://analytics-api-zlo2.onrender.com/analytics/prediction", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          charts,
-          data: scriptData,
-        }),
+        body: JSON.stringify(scriptBody),
       }).then(async (response) => {
         if (!response.ok) {
           throw new Error(await response.text());
         }
 
-        scriptCharts = await response.json();
-      })
+        generatedScriptCharts = await response.json();
+      }),
     );
   }
 
-  if (mobileData.length > 0) {
+  if (mobileCharts.length > 0 && mobileData.length > 0) {
     promises.push(
       fetch("https://analytics-api-zlo2.onrender.com/analytics", {
         method: "POST",
@@ -33,7 +41,7 @@ async function generateCharts(charts, scriptData, mobileData) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          charts,
+          charts: mobileCharts,
           data: mobileData,
         }),
       }).then(async (response) => {
@@ -41,16 +49,16 @@ async function generateCharts(charts, scriptData, mobileData) {
           throw new Error(await response.text());
         }
 
-        mobileCharts = await response.json();
-      })
+        generatedMobileCharts = await response.json();
+      }),
     );
   }
 
   await Promise.all(promises);
 
   return {
-    script: scriptCharts,
-    mobile: mobileCharts,
+    script: generatedScriptCharts,
+    mobile: generatedMobileCharts,
   };
 }
 

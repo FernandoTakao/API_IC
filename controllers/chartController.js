@@ -2,6 +2,21 @@ const { getDB } = require("../config/db");
 const { ObjectId } = require("mongodb");
 const { generateCharts } = require("../scripts/chartGenerator");
 
+// Gráficos de cada endpoint
+const MOBILE_CHARTS = [
+  "chart1",
+  "chart2",
+  "chart3",
+  "chart4" 
+];
+
+const SCRIPT_CHARTS = [
+  "chart_f1_heatmap",
+  "chart_metrics",
+  "chart_pareto"
+];
+
+//Filtro das execucoes
 function matchesFilters(exec, filters) {
   return Object.entries(filters).every(([field, filterValue]) => {
     const execValue = exec[field];
@@ -38,7 +53,8 @@ function matchesFilters(exec, filters) {
   });
 }
 
-async function getFilteredExecutions(collection, userId, filters, executionField) {
+//fazer a filtragem das execucoes
+async function getFilteredExecutions(collection, userId, filters, executionField,) {
   let experimentos;
 
   if (filters._id) {
@@ -50,9 +66,7 @@ async function getFilteredExecutions(collection, userId, filters, executionField
       experimentos = await collection
         .find({
           userId,
-          _id: {
-            $in: ids,
-          },
+          _id: { $in: ids },
         })
         .toArray();
     } else {
@@ -89,9 +103,23 @@ async function getFilteredExecutions(collection, userId, filters, executionField
   );
 }
 
+//Geraar os graficos
 async function createCharts(req, res) {
   try {
-    const { charts, scriptFilters = {}, mobileFilters = {} } = req.body;
+    const {
+      charts = [],
+      scriptFilters = {},
+      mobileFilters = {},
+    } = req.body;
+
+    // Separa os gráficos por endpoint
+    const mobileCharts = charts.filter((chart) =>
+      MOBILE_CHARTS.includes(chart),
+    );
+
+    const scriptCharts = charts.filter((chart) =>
+      SCRIPT_CHARTS.includes(chart),
+    );
 
     const db = getDB();
     const collection = db.collection("experimentos");
@@ -120,11 +148,16 @@ async function createCharts(req, res) {
       });
     }
 
-    const result = await generateCharts(charts, scriptData, mobileData);
+    const result = await generateCharts({
+      mobileCharts,
+      scriptCharts,
+      mobileData,
+      scriptData,
+    });
 
     return res.status(200).json({
       success: true,
-      ...result
+      ...result,
     });
   } catch (error) {
     console.error(error);

@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const authService = require("../services/authService");
+const emailService = require("../services/emailService");
 
 exports.createUser = async (req, res) => {
   try {
