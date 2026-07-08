@@ -1,6 +1,6 @@
 async function generateCharts(charts, scriptData, mobileData) {
   const [scriptResponse, mobileResponse] = await Promise.all([
-    fetch("https://analytics-api-zlo2.onrender.com/prediction", {
+    fetch("https://analytics-api-zlo2.onrender.com/analytics/prediction", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
