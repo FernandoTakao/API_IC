@@ -124,9 +124,7 @@ async function createCharts(req, res) {
 
     return res.status(200).json({
       success: true,
-      execucoesScript: scriptData,
-      execucoesMobile: mobileData,
-      ...result,
+      ...result
     });
   } catch (error) {
     console.error(error);
