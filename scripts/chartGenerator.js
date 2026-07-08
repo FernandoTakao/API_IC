@@ -1,40 +1,52 @@
 async function generateCharts(charts, scriptData, mobileData) {
-  const [scriptResponse, mobileResponse] = await Promise.all([
-    fetch("https://analytics-api-zlo2.onrender.com/analytics/prediction", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        charts,
-        data: scriptData,
-      }),
-    }),
+  let scriptCharts = {};
+  let mobileCharts = {};
 
-    fetch("https://analytics-api-zlo2.onrender.com/analytics", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        charts,
-        data: mobileData,
-      }),
-    }),
-  ]);
+  const promises = [];
 
-  if (!scriptResponse.ok) {
-    throw new Error(await scriptResponse.text());
+  if (scriptData.length > 0) {
+    promises.push(
+      fetch("https://analytics-api-zlo2.onrender.com/analytics/prediction", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          charts,
+          data: scriptData,
+        }),
+      }).then(async (response) => {
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        scriptCharts = await response.json();
+      })
+    );
   }
 
-  if (!mobileResponse.ok) {
-    throw new Error(await mobileResponse.text());
+  if (mobileData.length > 0) {
+    promises.push(
+      fetch("https://analytics-api-zlo2.onrender.com/analytics", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          charts,
+          data: mobileData,
+        }),
+      }).then(async (response) => {
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        mobileCharts = await response.json();
+      })
+    );
   }
 
-  const [scriptCharts, mobileCharts] = await Promise.all([
-    scriptResponse.json(),
-    mobileResponse.json(),
-  ]);
+  await Promise.all(promises);
 
   return {
     script: scriptCharts,
