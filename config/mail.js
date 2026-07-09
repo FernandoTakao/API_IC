@@ -8,7 +8,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Verifica a conexão com o servidor SMTP ao iniciar a aplicação
 transporter.verify((error) => {
   if (error) {
     console.error("Erro ao conectar ao servidor de e-mail:");

@@ -1,26 +1,56 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const authService = require("../services/authService");
+const emailService = require("../services/emailService");
+
 
 exports.createUser = async (req, res) => {
   try {
-    const senhaHash = await bcrypt.hash(
-      req.body.senha,
-      10
+    const existingUser = await User.findOne({
+      emailInstitucional: req.body.emailInstitucional,
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        message: "Este e-mail já está cadastrado.",
+      });
+    }
+
+    const senhaHash = await authService.hashPassword(
+      req.body.senha
     );
+
+    const verificationToken =
+      authService.generateVerificationToken();
+
+    const verificationExpiration =
+      authService.generateVerificationExpiration();
 
     const user = await User.create({
       ...req.body,
-      senha: senhaHash
+
+      senha: senhaHash,
+
+      emailVerificado: false,
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpiration,
     });
 
+    await emailService.sendVerificationEmail(
+      user.emailInstitucional,
+      verificationToken
+    );
+
     res.status(201).json({
-      message: "Usuário criado com sucesso",
-      user
+      message:
+        "Usuário criado com sucesso. Verifique seu e-mail para ativar sua conta.",
     });
 
   } catch (err) {
+    console.error(err);
+
     res.status(400).json({
-      error: err.message
+      error: err.message,
     });
   }
 };
