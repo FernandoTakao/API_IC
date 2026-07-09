@@ -47,18 +47,36 @@ async function addExecucoes(req, res, field) {
 
     if (!result) {
       return res.status(404).json({
-        message: "Experimento não encontrado",
+        message: "Experimento não encontrado.",
       });
     }
 
-    return res.status(200).json(result);
+    const firstExecution =
+      result.execucoesScript?.[0] ||
+      result.execucoesMobile?.[0];
+
+    return res.status(200).json({
+      message: "Execuções atualizadas com sucesso.",
+      experimento: {
+        id: result._id,
+        modelo: firstExecution?.modelo ?? null,
+        dataset: firstExecution?.dataset ?? null,
+        fold: firstExecution?.fold ?? null,
+      },
+      quantidade: {
+        aiMetrics: result.execucoesScript?.length ?? 0,
+        mobile: result.execucoesMobile?.length ?? 0,
+      },
+      updatedAt: result.updatedAt,
+    });
+
   } catch (err) {
     return res.status(500).json({
+      message: "Erro ao atualizar execuções.",
       error: err.message,
     });
   }
 }
-
 // ================= GET ALL =================
 
 exports.getMyExperimentos = async (req, res) => {
@@ -132,9 +150,9 @@ exports.getExperimentoInfo = async (req, res) => {
 
       return {
         _id: exp._id,
-        modelo: script.modelo ?? null,
-        dataset: script.dataset ?? null,
-        dispositivo: mobile.dispositivo ?? null,
+        modelo: script?.modelo ?? null,
+        dataset: script?.dataset ?? null,
+        dispositivo: mobile?.dispositivo ?? null,
       };
     });
 
