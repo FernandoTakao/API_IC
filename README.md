@@ -368,13 +368,18 @@ Resposta:
 {
   "success": true,
   "script": {
-    "chart1": { ... },
-    "chart2": { ... }
+    "chart_metrics": { ... },
+    "chart_pareto": { ... },
+    "chart_f1_heap": {...}
   },
   "mobile": {
     "chart1": { ... },
-    "chart2": { ... }
-  }
+    "chart2": { ... },
+    "chart3": {...},
+    "chart4": {...}
+  },
+  "execucoesMobile": [...],
+  "execucoesScript": [...]
 }
 ```
 ## Rotas Protegidas

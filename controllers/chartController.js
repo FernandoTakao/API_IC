@@ -158,6 +158,8 @@ async function createCharts(req, res) {
     return res.status(200).json({
       success: true,
       ...result,
+      execucoesMobile: mobileData,
+      execucoesScript: scriptData
     });
   } catch (error) {
     console.error(error);
