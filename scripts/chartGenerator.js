@@ -1,4 +1,9 @@
-async function generateCharts({mobileCharts, scriptCharts, mobileData, scriptData,}) {
+async function generateCharts({
+  mobileCharts,
+  scriptCharts,
+  mobileData,
+  scriptData,
+}) {
   let generatedScriptCharts = {};
   let generatedMobileCharts = {};
 
@@ -15,10 +20,16 @@ async function generateCharts({mobileCharts, scriptCharts, mobileData, scriptDat
     if (hasPareto) {
       scriptBody.mobile_data = mobileData;
     }
-    
-    console.log("=== SCRIPT BODY ===");
-    console.log(JSON.stringify(scriptBody, null, 2));
-    
+
+    console.log("SCRIPT DATA");
+    console.dir(scriptData[0], { depth: null });
+
+    console.log("MOBILE DATA");
+    console.dir(mobileData[0], { depth: null });
+
+    console.log("ÚLTIMO MOBILE");
+    console.dir(mobileData[mobileData.length - 1], { depth: null });
+
     promises.push(
       fetch("https://analytics-api-zlo2.onrender.com/analytics/prediction", {
         method: "POST",
