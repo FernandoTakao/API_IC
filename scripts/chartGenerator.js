@@ -16,6 +16,9 @@ async function generateCharts({mobileCharts, scriptCharts, mobileData, scriptDat
       scriptBody.mobile_data = mobileData;
     }
     
+    console.log("=== SCRIPT BODY ===");
+    console.log(JSON.stringify(scriptBody, null, 2));
+    
     promises.push(
       fetch("https://analytics-api-zlo2.onrender.com/analytics/prediction", {
         method: "POST",
