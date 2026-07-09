@@ -13,9 +13,9 @@ async function generateCharts({mobileCharts, scriptCharts, mobileData, scriptDat
     };
 
     if (hasPareto) {
-      scriptBody.mobileData = mobileData;
+      scriptBody.mobile_data = mobileData;
     }
-
+    
     promises.push(
       fetch("https://analytics-api-zlo2.onrender.com/analytics/prediction", {
         method: "POST",
