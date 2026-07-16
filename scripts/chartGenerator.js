@@ -21,14 +21,6 @@ async function generateCharts({
       scriptBody.mobile_data = mobileData;
     }
 
-    console.log("SCRIPT DATA");
-    console.dir(scriptData[0], { depth: null });
-
-    console.log("MOBILE DATA");
-    console.dir(mobileData[0], { depth: null });
-
-    console.log("ÚLTIMO MOBILE");
-    console.dir(mobileData[mobileData.length - 1], { depth: null });
 
     promises.push(
       fetch("https://analytics-api-zlo2.onrender.com/analytics/prediction", {
