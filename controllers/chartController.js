@@ -100,7 +100,7 @@ async function getFilteredExecutions(collection, userId, filters, executionField
   (exp[executionField] || [])
     .filter((exec) => matchesFilters(exec, executionFilters))
     .map((exec) => ({
-      experiment_id: exp._id.toString(),
+      experimento_id: exp._id.toString(),
       ...exec,
     })),
 );
