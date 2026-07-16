@@ -97,10 +97,13 @@ async function getFilteredExecutions(collection, userId, filters, executionField
   const { _id, ...executionFilters } = filters;
 
   return experimentos.flatMap((exp) =>
-    (exp[executionField] || []).filter((exec) =>
-      matchesFilters(exec, executionFilters),
-    ),
-  );
+  (exp[executionField] || [])
+    .filter((exec) => matchesFilters(exec, executionFilters))
+    .map((exec) => ({
+      experiment_id: exp._id.toString(),
+      ...exec,
+    })),
+);
 }
 
 //Geraar os graficos

@@ -19,12 +19,13 @@ exports.createUser = async (req, res) => {
     const senhaHash = await authService.hashPassword(
       req.body.senha
     );
+    
+    // "Servico de verificacao de email retirado temporariamente"
+    // const verificationToken =
+    //   authService.generateVerificationToken();
 
-    const verificationToken =
-      authService.generateVerificationToken();
-
-    const verificationExpiration =
-      authService.generateVerificationExpiration();
+    // const verificationExpiration =
+    //   authService.generateVerificationExpiration();
 
     const user = await User.create({
       ...req.body,
@@ -36,10 +37,10 @@ exports.createUser = async (req, res) => {
       emailVerificationExpires: verificationExpiration,
     });
 
-    await emailService.sendVerificationEmail(
-      user.emailInstitucional,
-      verificationToken
-    );
+    // await emailService.sendVerificationEmail(
+    //   user.emailInstitucional,
+    //   verificationToken
+    // );
 
     res.status(201).json({
       message:
