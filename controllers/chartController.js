@@ -3,18 +3,9 @@ const { ObjectId } = require("mongodb");
 const { generateCharts } = require("../scripts/chartGenerator");
 
 // Gráficos de cada endpoint
-const MOBILE_CHARTS = [
-  "chart1",
-  "chart2",
-  "chart3",
-  "chart4" 
-];
+const MOBILE_CHARTS = ["chart1", "chart2", "chart3", "chart4"];
 
-const SCRIPT_CHARTS = [
-  "chart_f1_heatmap",
-  "chart_metrics",
-  "chart_pareto"
-];
+const SCRIPT_CHARTS = ["chart_f1_heatmap", "chart_metrics", "chart_pareto"];
 
 //Filtro das execucoes
 function matchesFilters(exec, filters) {
@@ -54,7 +45,12 @@ function matchesFilters(exec, filters) {
 }
 
 //fazer a filtragem das execucoes
-async function getFilteredExecutions(collection, userId, filters, executionField,) {
+async function getFilteredExecutions(
+  collection,
+  userId,
+  filters,
+  executionField,
+) {
   let experimentos;
 
   if (filters._id) {
@@ -97,23 +93,19 @@ async function getFilteredExecutions(collection, userId, filters, executionField
   const { _id, ...executionFilters } = filters;
 
   return experimentos.flatMap((exp) =>
-  (exp[executionField] || [])
-    .filter((exec) => matchesFilters(exec, executionFilters))
-    .map((exec) => ({
-      experimento_id: exp._id.toString(),
-      ...exec,
-    })),
-);
+    (exp[executionField] || [])
+      .filter((exec) => matchesFilters(exec, executionFilters))
+      .map((exec) => ({
+        experimento_id: exp._id.toString(),
+        ...exec,
+      })),
+  );
 }
 
 //Geraar os graficos
 async function createCharts(req, res) {
   try {
-    const {
-      charts = [],
-      scriptFilters = {},
-      mobileFilters = {},
-    } = req.body;
+    const { charts = [], scriptFilters = {}, mobileFilters = {} } = req.body;
 
     // Separa os gráficos por endpoint
     const mobileCharts = charts.filter((chart) =>
@@ -144,6 +136,15 @@ async function createCharts(req, res) {
       ),
     ]);
 
+    console.log("SCRIPT DATA");
+    console.dir(scriptData[0], { depth: null });
+
+    console.log("MOBILE DATA");
+    console.dir(mobileData[0], { depth: null });
+
+    console.log("ÚLTIMO MOBILE");
+    console.dir(mobileData[mobileData.length - 1], { depth: null });
+
     if (scriptData.length === 0 && mobileData.length === 0) {
       return res.status(404).json({
         success: false,
@@ -162,7 +163,7 @@ async function createCharts(req, res) {
       success: true,
       ...result,
       execucoesMobile: mobileData,
-      execucoesScript: scriptData
+      execucoesScript: scriptData,
     });
   } catch (error) {
     console.error(error);
