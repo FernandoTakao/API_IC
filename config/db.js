@@ -1,28 +1,32 @@
 const { MongoClient } = require("mongodb");
 const mongoose = require("mongoose");
 
-const uri = process.env.MONGO_URI;
+const databaseName = process.env.MONGO_DB_NAME || "testeCSV";
 
-const client = new MongoClient(uri);
-
+let client;
 let db;
+let connectionPromise;
 
 async function connectDB() {
-  try {
-    await client.connect();
+  if (db && mongoose.connection.readyState === 1) return db;
 
-    db = client.db("testeCSV");
+  if (!connectionPromise) {
+    const uri = process.env.MONGO_URI;
+    if (!uri) throw new Error("A variável MONGO_URI não foi configurada.");
 
-    console.log("MongoDB Driver conectado");
-
-    await mongoose.connect(uri, {
-      dbName: "testeCSV",
+    connectionPromise = (async () => {
+      client = new MongoClient(uri);
+      await client.connect();
+      db = client.db(databaseName);
+      await mongoose.connect(uri, { dbName: databaseName });
+      return db;
+    })().catch((error) => {
+      connectionPromise = undefined;
+      throw error;
     });
-
-    console.log("Mongoose conectado");
-  } catch (err) {
-    console.error(err);
   }
+
+  return connectionPromise;
 }
 
 function getDB() {

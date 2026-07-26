@@ -1,11 +1,11 @@
-edite este documento read me # API ICD
+# API ICD
 
-Backend para armazenamento e gerenciamento de experimentos executados por aplicações e scripts, utilizando Node.js, Express e MongoDB.
+Backend para armazenamento e gerenciamento de experimentos executados por aplicações e scripts, utilizando Next.js, Node.js e MongoDB.
 
 ## Tecnologias
 
+- Next.js (App Router)
 - Node.js
-- Express
 - MongoDB
 - JWT (JSON Web Token)
 - Ngrok
@@ -41,7 +41,6 @@ npm install
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-PORT=3000
 MONGO_URI=mongodb://localhost:27017/testeCSV
 JWT_SECRET=seu_segredo_jwt
 ```
@@ -49,13 +48,14 @@ JWT_SECRET=seu_segredo_jwt
 ## Executando o projeto
 
 ```bash
-npm start
+npm run dev
 ```
 
-ou
+Para executar a versão de produção:
 
 ```bash
-node server.js
+npm run build
+npm start
 ```
 
 ---
@@ -238,7 +238,7 @@ Authorization: Bearer <token>
 
 ### Atualizar experimento com os dados do Mobile
 
-**PATCH** `/api/experimentos/:id/performace`
+**PATCH** `/api/experimentos/:id/performance`
 
 Requer autenticação
 
@@ -291,7 +291,7 @@ Exemplo de body:
 ```json
 {
   "execucoes": [
-    {      
+    {
       "dataset": "deepweeds",
       "modelo": "resnet50",
       "fold": 1,
@@ -386,7 +386,7 @@ Resposta:
 
 As seguintes rotas exigem autenticação JWT:
 
-* POST `/api/chaves`
+* POST `/api/experimentos/chaves`
 * GET `/api/experimentos/:id`
 * GET `/api/experimentos/:id/colunas`
 * PATCH `/api/experimentos/:id/performance`
@@ -422,13 +422,13 @@ https://abc123.ngrok-free.app
 
 ```text
 project/
+├── app/
+│   └── api/
 ├── config/
 ├── controllers/
-├── middlewares/
-├── routes/
+├── lib/
 ├── scripts/
-├── app.js
-├── server.js
+├── proxy.js
 ├── package.json
 └── .env
 ```
