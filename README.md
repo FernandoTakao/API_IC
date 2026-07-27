@@ -133,6 +133,8 @@ Exemplo de body:
 }
 ```
 
+`charts` e `filters` são opcionais. Sem `charts`, a API retorna todos os gráficos; sem `filters`, retorna todos os registros do usuário autenticado. Para gráficos mobile, a resposta é um objeto `{ "charts", "data" }`; para gráficos de predição, é `{ "charts", "data", "mobile_data" }` quando houver Pareto. Ao solicitar os dois grupos, a resposta é uma lista com as duas mensagens.
+
 Resposta:
 
 ```json
@@ -346,41 +348,55 @@ Exemplo de body:
 
 ```json
 {
-  {
-  "charts": [...],
-  "scriptFilters": {
+  "charts": ["chart1", "chart2", "chart_metrics", "chart_pareto"],
+  "filters": {
     "_id": ["exp1", "exp2"],
     "modelo": "resnet18",
-    "dataset": "deepweeds"
-  },
-  "mobileFilters": {
-    "_id": ["exp1", "exp2"],
-    "device": "Mid-end",
-    "dataset": "deepweeds"
+    "dataset": "deepweeds",
+    "device": "SM-S908E"
   }
-}
 }
 ```
 
 Resposta:
 
 ```json
-{
-  "success": true,
-  "script": {
-    "chart_metrics": { ... },
-    "chart_pareto": { ... },
-    "chart_f1_heap": {...}
+[
+  {
+    "charts": ["chart1", "chart2"],
+    "data": [
+      {
+        "experimento_id": "exp1",
+        "modelo": "resnet18",
+        "dataset": "deepweeds",
+        "device": "SM-S908E",
+        "inference_time": 2033.7
+      }
+    ]
   },
-  "mobile": {
-    "chart1": { ... },
-    "chart2": { ... },
-    "chart3": {...},
-    "chart4": {...}
-  },
-  "execucoesMobile": [...],
-  "execucoesScript": [...]
-}
+  {
+    "charts": ["chart_metrics", "chart_pareto"],
+    "data": [
+      {
+        "experimento_id": "exp1",
+        "modelo": "resnet18",
+        "dataset": "deepweeds",
+        "fold": 1,
+        "y_true_idx": 3,
+        "y_pred_idx": 3
+      }
+    ],
+    "mobile_data": [
+      {
+        "experimento_id": "exp1",
+        "modelo": "resnet18",
+        "dataset": "deepweeds",
+        "device": "SM-S908E",
+        "inference_time": 2033.7
+      }
+    ]
+  }
+]
 ```
 ## Rotas Protegidas
 
