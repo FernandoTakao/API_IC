@@ -14,10 +14,7 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      match: [
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        "Email inválido",
-      ],
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Email inválido"],
     },
 
     instituicao: {
@@ -59,10 +56,10 @@ const UserSchema = new mongoose.Schema(
       default: null,
     },
   },
-  
+
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.models.User || mongoose.model("User", UserSchema);
