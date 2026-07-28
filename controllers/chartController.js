@@ -14,17 +14,24 @@ function matchesFilters(execution, filters) {
     const executionValue = execution[field];
 
     if (filterValue === undefined || filterValue === null) return true;
-    if (Array.isArray(filterValue)) return filterValue.includes(executionValue);
+
+    if (Array.isArray(filterValue)) {
+      return filterValue.includes(executionValue);
+    }
 
     if (typeof filterValue === "object" && !Array.isArray(filterValue)) {
       if (filterValue.gte !== undefined && executionValue < filterValue.gte)
         return false;
+
       if (filterValue.lte !== undefined && executionValue > filterValue.lte)
         return false;
+
       if (filterValue.gt !== undefined && executionValue <= filterValue.gt)
         return false;
+
       if (filterValue.lt !== undefined && executionValue >= filterValue.lt)
         return false;
+
       return true;
     }
 
@@ -42,33 +49,31 @@ async function getFilteredExecutions(
 
   if (filters._id) {
     if (Array.isArray(filters._id)) {
-      const ids = filters._id.map((id) =>
-        ObjectId.isValid(id) ? new ObjectId(id) : id,
-      );
       experimentos = await collection
-        .find({ userId, _id: { $in: ids } })
+        .find({
+          userId,
+          _id: { $in: filters._id },
+        })
         .toArray();
     } else {
-      try {
-        experimentos = await collection
-          .find({ userId, _id: new ObjectId(filters._id) })
-          .toArray();
-      } catch {
-        experimentos = await collection
-          .find({ userId, _id: filters._id })
-          .toArray();
-      }
+      experimentos = await collection
+        .find({
+          userId,
+          _id: filters._id,
+        })
+        .toArray();
     }
   } else {
     experimentos = await collection.find({ userId }).toArray();
   }
 
   const { _id, ...executionFilters } = filters;
+
   return experimentos.flatMap((experimento) =>
     (experimento[executionField] || [])
       .filter((execution) => matchesFilters(execution, executionFilters))
       .map((execution) => ({
-        experimento_id: experimento._id.toString(),
+        experimento_id: experimento._id,
         ...execution,
       })),
   );
@@ -80,26 +85,36 @@ function mobileMessage(charts, data) {
 
 function predictionMessage(charts, data, mobileData) {
   const message = { charts, data };
+
   const needsMobileData =
     charts.includes("chart_pareto") ||
     charts.includes("chart_pareto_by_dataset");
-  if (needsMobileData) message.mobile_data = mobileData;
+
+  if (needsMobileData) {
+    message.mobile_data = mobileData;
+  }
+
   return message;
 }
 
 async function createCharts({ body, user }) {
   try {
-    const filters = body.filters || {};
+    const mobileFilters = body.mobileFilters || {};
+    const scriptFilters = body.scriptFilters || {};
+
     const requestedCharts =
       Array.isArray(body.charts) && body.charts.length > 0
         ? body.charts
         : [...MOBILE_CHARTS, ...PREDICTION_CHARTS];
+
     const mobileCharts = requestedCharts.filter((chart) =>
       MOBILE_CHARTS.includes(chart),
     );
+
     const predictionCharts = requestedCharts.filter((chart) =>
       PREDICTION_CHARTS.includes(chart),
     );
+
     const needsMobileData =
       predictionCharts.includes("chart_pareto") ||
       predictionCharts.includes("chart_pareto_by_dataset");
@@ -107,18 +122,32 @@ async function createCharts({ body, user }) {
     if (mobileCharts.length === 0 && predictionCharts.length === 0) {
       return {
         status: 400,
-        body: { message: "Nenhum gráfico válido foi solicitado." },
+        body: {
+          message: "Nenhum gráfico válido foi solicitado.",
+        },
       };
     }
 
     const collection = getDB().collection("experimentos");
     const userId = new ObjectId(user.id);
+
     const [mobileData, predictionData] = await Promise.all([
       mobileCharts.length > 0 || needsMobileData
-        ? getFilteredExecutions(collection, userId, filters, "execucoesMobile")
+        ? getFilteredExecutions(
+            collection,
+            userId,
+            mobileFilters,
+            "execucoesMobile",
+          )
         : [],
+
       predictionCharts.length > 0
-        ? getFilteredExecutions(collection, userId, filters, "execucoesScript")
+        ? getFilteredExecutions(
+            collection,
+            userId,
+            scriptFilters,
+            "execucoesScript",
+          )
         : [],
     ]);
 
@@ -136,12 +165,16 @@ async function createCharts({ body, user }) {
     }
 
     const messages = [];
-    if (mobileCharts.length > 0)
+
+    if (mobileCharts.length > 0) {
       messages.push(mobileMessage(mobileCharts, mobileData));
-    if (predictionCharts.length > 0)
+    }
+
+    if (predictionCharts.length > 0) {
       messages.push(
         predictionMessage(predictionCharts, predictionData, mobileData),
       );
+    }
 
     return {
       status: 200,
@@ -149,7 +182,13 @@ async function createCharts({ body, user }) {
     };
   } catch (error) {
     console.error(error);
-    return { status: 500, body: { message: error.message } };
+
+    return {
+      status: 500,
+      body: {
+        message: error.message,
+      },
+    };
   }
 }
 
