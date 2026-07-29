@@ -165,9 +165,9 @@ Resposta:
 
 ```json
 {
-    "message": "Experimento criado com sucesso",
-    "id": "HHgWQ9qI",
-    "createdAt": "2026-06-24T20:01:58.412Z"
+  "message": "Experimento criado com sucesso",
+  "id": "HHgWQ9qI",
+  "createdAt": "2026-06-24T20:01:58.412Z"
 }
 ```
 
@@ -175,7 +175,6 @@ Um experimento vazio será criado com esta chave contendo duas listas independen
 execucoesScript
 execucoesMobile
 Utilize uma das rotas PATCH abaixo para enviar as execuções correspondentes ao tipo de experimento.
-
 
 ### Listar meus experimentos com todas a informações
 
@@ -200,6 +199,7 @@ Header:
 ```http
 Authorization: Bearer <token>
 ```
+
 Resposta:
 
 ```json
@@ -209,18 +209,30 @@ Resposta:
     "modelo": "YOLOv8",
     "dataset": "COCO",
     "dispositivo": "RTX 4060"
+    "qtdMobile": 200,
+    "qtdScript": 200,
+    "createdAt": 2026-07-09T17:53:52.940+00:00,
+    "updatedAt": 2026-07-09T17:53:52.940+00:00,
   },
   {
     "_id": "Ef56Gh78",
     "modelo": "ResNet50",
     "dataset": "ImageNet",
-    "dispositivo": "RTX 3090"
+    "dispositivo": "RTX 3090",
+    "qtdMobile": 200,
+    "qtdScript": 200,
+    "createdAt": 2026-07-09T17:53:52.940+00:00,
+    "updatedAt": 2026-07-09T17:53:52.940+00:00,
   },
   {
     "_id": "Ij90Kl12",
     "modelo": "MobileNet",
     "dataset": "CIFAR-10",
-    "dispositivo": "Jetson Nano"
+    "dispositivo": "Jetson Nano",
+    "qtdMobile": 200,
+    "qtdScript": 200,
+    "createdAt": 2026-07-09T17:53:52.940+00:00,
+    "updatedAt": 2026-07-09T17:53:52.940+00:00,
   }
 ]
 ```
@@ -236,7 +248,6 @@ Header:
 ```http
 Authorization: Bearer <token>
 ```
-
 
 ### Atualizar experimento com os dados do Mobile
 
@@ -398,19 +409,20 @@ Resposta:
   }
 ]
 ```
+
 ## Rotas Protegidas
 
 As seguintes rotas exigem autenticação JWT:
 
-* POST `/api/experimentos/chaves`
-* GET `/api/experimentos/:id`
-* GET `/api/experimentos/:id/colunas`
-* PATCH `/api/experimentos/:id/performance`
-* PATCH `/api/experimentos/:id/aiMetrics`
-* DELETE `/api/experimentos/:id`
-* GET `/api/experimentos`
-* GET `/api/experimentos/info`
-* POST `/api/charts`
+- POST `/api/experimentos/chaves`
+- GET `/api/experimentos/:id`
+- GET `/api/experimentos/:id/colunas`
+- PATCH `/api/experimentos/:id/performance`
+- PATCH `/api/experimentos/:id/aiMetrics`
+- DELETE `/api/experimentos/:id`
+- GET `/api/experimentos`
+- GET `/api/experimentos/info`
+- POST `/api/charts`
 
 Header obrigatório:
 
