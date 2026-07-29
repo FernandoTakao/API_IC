@@ -100,6 +100,10 @@ exports.getExperimentoInfo = async ({ user }) => {
         modelo: exp.execucoesScript?.[0]?.modelo ?? null,
         dataset: exp.execucoesScript?.[0]?.dataset ?? null,
         dispositivo: exp.execucoesMobile?.[0]?.dispositivo ?? null,
+        qtdMobile: exp.execucoesMobile.length(),
+        qtdScript: exp.execucoesScript.length(),
+        createdAt: exp.createdAt,
+        updatedAt: exp.updatedAt,
       })),
     };
   } catch (err) {
