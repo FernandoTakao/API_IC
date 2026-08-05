@@ -5,33 +5,60 @@ const User = require("../models/User");
 function generateKey(length = 8) {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
   let key = "";
-  for (let i = 0; i < length; i++)
+
+  for (let i = 0; i < length; i++) {
     key += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
   return key;
 }
 
 async function addExecucoes({ id, body, user }, field) {
   try {
     const { execucoes } = body;
-    if (!Array.isArray(execucoes))
+
+    if (!Array.isArray(execucoes)) {
       return {
         status: 400,
-        body: { message: "A lista de execuções é obrigatória." },
+        body: {
+          message: "A lista de execuções é obrigatória.",
+        },
       };
+    }
 
     const result = await getDB()
       .collection("experimentos")
       .findOneAndUpdate(
-        { _id: id.trim(), userId: new ObjectId(user.id) },
-        { $set: { [field]: execucoes, updatedAt: new Date() } },
-        { returnDocument: "after" },
+        {
+          _id: id.trim(),
+          userId: new ObjectId(user.id),
+          arquivado: false,
+        },
+        {
+          $set: {
+            [field]: execucoes,
+            updatedAt: new Date(),
+          },
+        },
+        {
+          returnDocument: "after",
+        },
       );
-    if (!result)
-      return { status: 404, body: { message: "Experimento não encontrado." } };
+
+    if (!result) {
+      return {
+        status: 404,
+        body: {
+          message: "Experimento não encontrado.",
+        },
+      };
+    }
 
     const firstExecution =
       result.execucoesScript?.[0] || result.execucoesMobile?.[0];
+
     return {
       status: 200,
       body: {
@@ -52,7 +79,10 @@ async function addExecucoes({ id, body, user }, field) {
   } catch (err) {
     return {
       status: 500,
-      body: { message: "Erro ao atualizar execuções.", error: err.message },
+      body: {
+        message: "Erro ao atualizar execuções.",
+        error: err.message,
+      },
     };
   }
 }
@@ -61,11 +91,23 @@ exports.getMyExperimentos = async ({ user }) => {
   try {
     const experimentos = await getDB()
       .collection("experimentos")
-      .find({ userId: new ObjectId(user.id) })
+      .find({
+        userId: new ObjectId(user.id),
+        arquivado: false,
+      })
       .toArray();
-    return { status: 200, body: experimentos };
+
+    return {
+      status: 200,
+      body: experimentos,
+    };
   } catch (err) {
-    return { status: 500, body: { error: err.message } };
+    return {
+      status: 500,
+      body: {
+        error: err.message,
+      },
+    };
   }
 };
 
@@ -73,12 +115,32 @@ exports.getExperimentoById = async ({ id, user }) => {
   try {
     const experimento = await getDB()
       .collection("experimentos")
-      .findOne({ _id: id.trim(), userId: new ObjectId(user.id) });
-    if (!experimento)
-      return { status: 404, body: { message: "Experimento não encontrado" } };
-    return { status: 200, body: experimento };
+      .findOne({
+        _id: id.trim(),
+        userId: new ObjectId(user.id),
+        arquivado: false,
+      });
+
+    if (!experimento) {
+      return {
+        status: 404,
+        body: {
+          message: "Experimento não encontrado",
+        },
+      };
+    }
+
+    return {
+      status: 200,
+      body: experimento,
+    };
   } catch (err) {
-    return { status: 500, body: { error: err.message } };
+    return {
+      status: 500,
+      body: {
+        error: err.message,
+      },
+    };
   }
 };
 
@@ -86,17 +148,26 @@ exports.getExperimentoInfo = async ({ user }) => {
   try {
     const experimentos = await getDB()
       .collection("experimentos")
-      .find({ userId: new ObjectId(user.id) })
+      .find({
+        userId: new ObjectId(user.id),
+        arquivado: false,
+      })
       .toArray();
-    if (experimentos.length === 0)
+
+    if (experimentos.length === 0) {
       return {
         status: 404,
-        body: { message: "Nenhum experimento encontrado." },
+        body: {
+          message: "Nenhum experimento encontrado.",
+        },
       };
+    }
+
     return {
       status: 200,
       body: experimentos.map((exp) => ({
         _id: exp._id,
+        nome: exp.nome,
         modelo: exp.execucoesScript?.[0]?.modelo ?? null,
         dataset: exp.execucoesScript?.[0]?.dataset ?? null,
         dispositivo: exp.execucoesMobile?.[0]?.dispositivo ?? null,
@@ -109,50 +180,116 @@ exports.getExperimentoInfo = async ({ user }) => {
   } catch (err) {
     return {
       status: 500,
-      body: { message: "Erro interno do servidor.", error: err.message },
+      body: {
+        message: "Erro interno do servidor.",
+        error: err.message,
+      },
+    };
+  }
+};
+
+exports.getExperimentosArquivados = async ({ user }) => {
+  try {
+    const experimentos = await getDB()
+      .collection("experimentos")
+      .find({
+        userId: new ObjectId(user.id),
+        arquivado: true,
+      })
+      .toArray();
+
+    return {
+      status: 200,
+      body: experimentos,
+    };
+  } catch (err) {
+    return {
+      status: 500,
+      body: {
+        message: "Erro ao buscar experimentos arquivados.",
+        error: err.message,
+      },
     };
   }
 };
 
 exports.addExecucoesScript = (input) => addExecucoes(input, "execucoesScript");
+
 exports.addExecucoesMobile = (input) => addExecucoes(input, "execucoesMobile");
 
 exports.deleteExperimento = async ({ id, user }) => {
   try {
-    const query = { _id: id.trim(), userId: new ObjectId(user.id) };
+    const query = {
+      _id: id.trim(),
+      userId: new ObjectId(user.id),
+    };
+
     const collection = getDB().collection("experimentos");
-    if (!(await collection.findOne(query)))
-      return { status: 404, body: { message: "Experimento não encontrado" } };
+
+    const experimento = await collection.findOne(query);
+
+    if (!experimento) {
+      return {
+        status: 404,
+        body: {
+          message: "Experimento não encontrado",
+        },
+      };
+    }
+
     await collection.deleteOne(query);
-    await User.findByIdAndUpdate(user.id, { $pull: { experimentKeys: id } });
+
+    await User.findByIdAndUpdate(user.id, {
+      $pull: {
+        experimentKeys: id,
+      },
+    });
+
     return {
       status: 200,
-      body: { message: "Experimento deletado com sucesso" },
+      body: {
+        message: "Experimento deletado com sucesso",
+      },
     };
   } catch (err) {
-    return { status: 500, body: { error: err.message } };
+    return {
+      status: 500,
+      body: {
+        error: err.message,
+      },
+    };
   }
 };
 
-exports.generateExperimentKey = async ({ user }) => {
+exports.generateExperimentKey = async ({ user, nome }) => {
   try {
     const collection = getDB().collection("experimentos");
+
     let key;
+
     do {
       key = generateKey();
     } while (await collection.findOne({ _id: key }));
+
     const experimento = {
       _id: key,
+      nome,
       userId: new ObjectId(user.id),
+
       execucoesScript: [],
       execucoesMobile: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
     await collection.insertOne(experimento);
+
     await User.findByIdAndUpdate(user.id, {
-      $addToSet: { experimentKeys: key },
+      $addToSet: {
+        experimentKeys: key,
+      },
     });
+
     return {
       status: 201,
       body: {
@@ -164,7 +301,10 @@ exports.generateExperimentKey = async ({ user }) => {
   } catch (err) {
     return {
       status: 500,
-      body: { message: "Erro ao gerar chave", error: err.message },
+      body: {
+        message: "Erro ao gerar chave",
+        error: err.message,
+      },
     };
   }
 };

@@ -144,7 +144,28 @@ Resposta:
   "user": [...]
 }
 ```
+### Recuperação de senha
 
+**POST** `/api/auth/forgot-password`
+Exemplo de body:
+
+```json
+{
+  "emailInstitucional": "fernando@universidade.edu"
+}
+```
+
+### Resetar senha
+
+**POST** `api/auth/reset-password`
+Exemplo de body:
+
+```json
+{
+  "senha": "NovaSenha123",
+  "token": [...]
+}
+```
 ---
 
 ## Experimentos

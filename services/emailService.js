@@ -7,8 +7,9 @@ async function sendVerificationEmail(email, token) {
     `${process.env.API_URL}/api/auth/verify-email?token=${token}`;
 
   const templatePath = path.join(
-    __dirname,
-    "../templates/verificationEmail.html"
+    process.cwd(),
+    "templates",
+    "verificationEmail.html"
   );
 
   let html = await fs.readFile(templatePath, "utf-8");
@@ -23,6 +24,29 @@ async function sendVerificationEmail(email, token) {
   });
 }
 
+async function sendPasswordResetEmail(email, token) {
+  const resetLink =
+    `${process.env.API_URL}/reset-password?token=${token}`;
+
+  const templatePath = path.join(
+    process.cwd(),
+    "templates",
+    "resetPasswordEmail.html"
+  );
+
+  let html = await fs.readFile(templatePath, "utf-8");
+
+  html = html.replaceAll("{{resetLink}}", resetLink);
+
+  await transporter.sendMail({
+    from: `"ICD Platform" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Recuperação de senha",
+    html,
+  });
+}
+
 module.exports = {
   sendVerificationEmail,
+  sendPasswordResetEmail,
 };

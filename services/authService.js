@@ -2,11 +2,11 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-function generateVerificationToken(size = 32) {
+function generateRandomToken(size = 32) {
   return crypto.randomBytes(size).toString("hex");
 }
 
-function generateVerificationExpiration(minutes = 5) {
+function generateTokenExpiration(minutes = 5) {
   return new Date(Date.now() + minutes * 60 * 1000);
 }
 
@@ -29,8 +29,8 @@ function generateAccessToken(userId) {
 }
 
 module.exports = {
-  generateVerificationToken,
-  generateVerificationExpiration,
+  generateRandomToken,
+  generateTokenExpiration,
   hashPassword,
   comparePassword,
   generateAccessToken,
