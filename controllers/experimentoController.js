@@ -207,7 +207,17 @@ exports.getExperimentosArquivados = async ({ user }) => {
 
     return {
       status: 200,
-      body: experimentos,
+      body: experimentos.map((exp) => ({
+        _id: exp._id,
+        nome: exp.nome,
+        modelo: exp.execucoesScript?.[0]?.modelo ?? null,
+        dataset: exp.execucoesScript?.[0]?.dataset ?? null,
+        dispositivo: exp.execucoesMobile?.[0]?.dispositivo ?? null,
+        qtdMobile: exp.execucoesMobile?.length ?? 0,
+        qtdScript: exp.execucoesScript?.length ?? 0,
+        createdAt: exp.createdAt,
+        updatedAt: exp.updatedAt,
+      })),
     };
   } catch (err) {
     return {
@@ -280,7 +290,7 @@ exports.generateExperimentKey = async ({ user, nome }) => {
 
     const experimento = {
       _id: key,
-      nome,
+      nome: nome,
       userId: new ObjectId(user.id),
       arquivado: false,
       execucoesScript: [],
