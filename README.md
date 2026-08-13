@@ -43,6 +43,7 @@ Crie um arquivo `.env` na raiz do projeto:
 ```env
 MONGO_URI=mongodb://localhost:27017/testeCSV
 JWT_SECRET=seu_segredo_jwt
+ARCHIVE_TRIGGER_SECRET=um_segredo_longo_e_aleatorio
 ```
 
 ## Executando o projeto
@@ -169,6 +170,27 @@ Exemplo de body:
 ---
 
 ## Experimentos
+
+### Arquivar experimentos inativos (MongoDB Trigger)
+
+**POST** `/api/interno/arquivar-experimentos`
+
+Esta rota executa o serviço de arquivamento de experimentos sem execução há 14
+dias. Configure o MongoDB Trigger para enviar o segredo definido em
+`ARCHIVE_TRIGGER_SECRET` no header abaixo:
+
+```http
+x-archive-trigger-secret: <ARCHIVE_TRIGGER_SECRET>
+```
+
+Resposta de sucesso:
+
+```json
+{
+  "message": "Arquivamento de experimentos concluído",
+  "quantidadeArquivada": 3
+}
+```
 
 ### Gerar chave de experimento
 

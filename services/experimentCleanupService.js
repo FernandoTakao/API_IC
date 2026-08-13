@@ -1,20 +1,32 @@
+const { getDB } = require("../config/db");
+
+const DIAS_SEM_EXECUCOES_PARA_ARQUIVAR = 14;
+
 async function arquivarExperimentosSemExecucoes() {
   try {
-    const limite = new Date(Date.now() - 60 * 60 * 1000);
+    const agora = new Date();
+    const limite = new Date(
+      agora.getTime() -
+        DIAS_SEM_EXECUCOES_PARA_ARQUIVAR * 24 * 60 * 60 * 1000,
+    );
 
     const resultado = await getDB()
       .collection("experimentos")
       .updateMany(
         {
-          arquivado: false,
-          createdAt: { $lte: limite },
-          "execucoesScript.0": { $exists: false },
-          "execucoesMobile.0": { $exists: false },
+          arquivado: { $ne: true },
+          $or: [
+            { ultimaExecucaoEm: { $lte: limite } },
+            {
+              ultimaExecucaoEm: { $exists: false },
+              updatedAt: { $lte: limite },
+            },
+          ],
         },
         {
           $set: {
             arquivado: true,
-            updatedAt: new Date(),
+            updatedAt: agora,
           },
         },
       );
@@ -25,3 +37,7 @@ async function arquivarExperimentosSemExecucoes() {
     return 0;
   }
 }
+
+module.exports = {
+  arquivarExperimentosSemExecucoes,
+};

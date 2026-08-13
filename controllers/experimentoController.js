@@ -28,6 +28,16 @@ async function addExecucoes({ id, body, user }, field) {
       };
     }
 
+    const agora = new Date();
+    const atualizacao = {
+      [field]: execucoes,
+      updatedAt: agora,
+    };
+
+    if (execucoes.length > 0) {
+      atualizacao.ultimaExecucaoEm = agora;
+    }
+
     const result = await getDB()
       .collection("experimentos")
       .findOneAndUpdate(
@@ -37,10 +47,7 @@ async function addExecucoes({ id, body, user }, field) {
           arquivado: false,
         },
         {
-          $set: {
-            [field]: execucoes,
-            updatedAt: new Date(),
-          },
+          $set: atualizacao,
         },
         {
           returnDocument: "after",
@@ -275,7 +282,7 @@ exports.generateExperimentKey = async ({ user, nome }) => {
       _id: key,
       nome,
       userId: new ObjectId(user.id),
-
+      arquivado: false,
       execucoesScript: [],
       execucoesMobile: [],
       createdAt: new Date(),
