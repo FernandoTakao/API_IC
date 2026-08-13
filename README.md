@@ -171,27 +171,6 @@ Exemplo de body:
 
 ## Experimentos
 
-### Arquivar experimentos inativos (MongoDB Trigger)
-
-**POST** `/api/interno/arquivar-experimentos`
-
-Esta rota executa o serviço de arquivamento de experimentos sem execução há 14
-dias. Configure o MongoDB Trigger para enviar o segredo definido em
-`ARCHIVE_TRIGGER_SECRET` no header abaixo:
-
-```http
-x-archive-trigger-secret: <ARCHIVE_TRIGGER_SECRET>
-```
-
-Resposta de sucesso:
-
-```json
-{
-  "message": "Arquivamento de experimentos concluído",
-  "quantidadeArquivada": 3
-}
-```
-
 ### Gerar chave de experimento
 
 **POST** `/api/experimentos/chaves`
@@ -243,6 +222,42 @@ Header:
 ```http
 Authorization: Bearer <token>
 ```
+
+```json
+[
+  {
+    "_id": "Ab12Cd34",
+    "modelo": "YOLOv8",
+    "dataset": "COCO",
+    "dispositivo": "RTX 4060"
+    "qtdMobile": 200,
+    "qtdScript": 200,
+    "createdAt": 2026-07-09T17:53:52.940+00:00,
+    "updatedAt": 2026-07-09T17:53:52.940+00:00,
+  },
+  {
+    "_id": "Ef56Gh78",
+    "modelo": "ResNet50",
+    "dataset": "ImageNet",
+    "dispositivo": "RTX 3090",
+    "qtdMobile": 200,
+    "qtdScript": 200,
+    "createdAt": 2026-07-09T17:53:52.940+00:00,
+    "updatedAt": 2026-07-09T17:53:52.940+00:00,
+  },
+  {
+    "_id": "Ij90Kl12",
+    "modelo": "MobileNet",
+    "dataset": "CIFAR-10",
+    "dispositivo": "Jetson Nano",
+    "qtdMobile": 200,
+    "qtdScript": 200,
+    "createdAt": 2026-07-09T17:53:52.940+00:00,
+    "updatedAt": 2026-07-09T17:53:52.940+00:00,
+  }
+]
+```
+
 
 ### Listar meus experimentos com as informações essenciais
 
