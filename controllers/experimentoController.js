@@ -44,7 +44,7 @@ async function addExecucoes({ id, body, user }, field) {
         {
           _id: id.trim(),
           userId: new ObjectId(user.id),
-          arquivado: false,
+          arquivado: { $ne: true },
         },
         {
           $set: atualizacao,
@@ -100,7 +100,7 @@ exports.getMyExperimentos = async ({ user }) => {
       .collection("experimentos")
       .find({
         userId: new ObjectId(user.id),
-        arquivado: false,
+        arquivado: { $ne: true },
       })
       .toArray();
 
@@ -125,7 +125,7 @@ exports.getExperimentoById = async ({ id, user }) => {
       .findOne({
         _id: id.trim(),
         userId: new ObjectId(user.id),
-        arquivado: false,
+        arquivado: { $ne: true },
       });
 
     if (!experimento) {
@@ -157,7 +157,7 @@ exports.getExperimentoInfo = async ({ user }) => {
       .collection("experimentos")
       .find({
         userId: new ObjectId(user.id),
-        arquivado: false,
+        arquivado: { $ne: true },
       })
       .toArray();
 

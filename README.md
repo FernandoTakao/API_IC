@@ -231,6 +231,19 @@ Header:
 Authorization: Bearer <token>
 ```
 
+### Listar meus experimentos arquivados
+
+**GET** `/api/experimentos/arquivados`
+
+Requer autenticação. Esta rota retorna somente os experimentos do usuário cujo
+campo `arquivado` é `true`.
+
+Header:
+
+```http
+Authorization: Bearer <token>
+```
+
 ### Listar meus experimentos com as informações essenciais
 
 **GET** `/api/experimentos/info`
