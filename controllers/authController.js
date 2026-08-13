@@ -2,9 +2,12 @@ const User = require("../models/User");
 const authService = require("../services/authService");
 const emailService = require("../services/emailService");
 
+const EMAIL_ENABLED = process.env.ENABLE_EMAIL === "true";
+
 exports.login = async ({ body }) => {
   try {
     const { emailInstitucional, senha } = body;
+
     if (!emailInstitucional || !senha) {
       return {
         status: 400,
@@ -47,6 +50,7 @@ exports.login = async ({ body }) => {
     };
   } catch (err) {
     console.error(err);
+
     return {
       status: 500,
       body: { message: "Erro interno do servidor." },
@@ -107,6 +111,7 @@ exports.verifyEmail = async ({ query }) => {
     };
   } catch (err) {
     console.error(err);
+
     return {
       status: 500,
       body: { message: "Erro interno do servidor." },
@@ -164,10 +169,12 @@ exports.resendVerificationEmail = async ({ body }) => {
 
     await user.save();
 
-    await emailService.sendVerificationEmail(
-      user.emailInstitucional,
-      verificationToken,
-    );
+    if (EMAIL_ENABLED) {
+      await emailService.sendVerificationEmail(
+        user.emailInstitucional,
+        verificationToken,
+      );
+    }
 
     return {
       status: 200,
@@ -175,6 +182,7 @@ exports.resendVerificationEmail = async ({ body }) => {
     };
   } catch (err) {
     console.error(err);
+
     return {
       status: 500,
       body: { message: "Erro interno do servidor." },
@@ -222,10 +230,12 @@ exports.forgotPassword = async ({ body }) => {
 
     await user.save();
 
-    await emailService.sendPasswordResetEmail(
-      user.emailInstitucional,
-      resetToken,
-    );
+    if (EMAIL_ENABLED) {
+      await emailService.sendPasswordResetEmail(
+        user.emailInstitucional,
+        resetToken,
+      );
+    }
 
     return {
       status: 200,
@@ -233,6 +243,7 @@ exports.forgotPassword = async ({ body }) => {
     };
   } catch (err) {
     console.error(err);
+
     return {
       status: 500,
       body: { message: "Erro interno do servidor." },
@@ -291,6 +302,7 @@ exports.resetPassword = async ({ body }) => {
     };
   } catch (err) {
     console.error(err);
+
     return {
       status: 500,
       body: { message: "Erro interno do servidor." },
