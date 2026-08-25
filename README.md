@@ -63,13 +63,11 @@ npm start
 
 ## Autenticação
 
-A API utiliza JWT para proteger determinadas rotas.
-
-Após realizar login, envie o token no header da requisição:
-
-```http
-Authorization: Bearer <token>
-```
+A API utiliza JWT em um cookie de sessão `HttpOnly` para proteger determinadas
+rotas. Após o login, o navegador envia o cookie automaticamente; o token não é
+exposto no corpo da resposta nem pode ser lido por JavaScript. Para clientes que
+não usam cookies (por exemplo, integrações de servidor), o header `Authorization`
+continua sendo aceito temporariamente.
 
 ---
 
@@ -141,10 +139,14 @@ Resposta:
 ```json
 {
   "message": "Login realizado com sucesso",
-  "token": "eyJhbGciOiJIUzI1NiIs...",
   "user": [...]
 }
 ```
+
+O endpoint aceita no máximo cinco tentativas inválidas por IP e conta em uma
+janela de 15 minutos. Quando excedido, responde com `429` e o header
+`Retry-After`. Os valores podem ser ajustados por `LOGIN_RATE_LIMIT_MAX_ATTEMPTS`
+e `LOGIN_RATE_LIMIT_WINDOW_MINUTES`.
 ### Recuperação de senha
 
 **POST** `/api/auth/forgot-password`
