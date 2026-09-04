@@ -46,6 +46,18 @@ JWT_SECRET=seu_segredo_jwt
 ARCHIVE_TRIGGER_SECRET=um_segredo_longo_e_aleatorio
 ```
 
+### CORS
+
+Quando o frontend estiver em outra origem, defina no ambiente do backend as
+origens autorizadas, separadas por vírgula. Isso é necessário principalmente
+para requisições autenticadas por cookie.
+
+```env
+CORS_ALLOWED_ORIGINS=http://localhost:3000,https://app.exemplo.com
+```
+
+O frontend deve fazer essas requisições com `credentials: "include"`.
+
 ## Executando o projeto
 
 ```bash
